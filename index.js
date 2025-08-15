@@ -20,10 +20,11 @@ const server = net.createServer((socket) => {
             else if(command === "GET"){
                 const key = reply[1];
                 const value = store[key];
-                if(value){
-                     
+                if(!value){
+                    socket.write('$-1\r\n');
                 }
-            } 
+                else socket.write(`$${value.length}\r\n${value}\r\n`);
+            }  
             else {
                 socket.write(`-ERR unknown command '${command}'\r\n`); // send the error response
             }
