@@ -42,13 +42,26 @@ const server = net.createServer((socket) => {
         const key = reply[1].toString();
         let value = store[key] ? parseInt(store[key], 10) : 0; // get the value
 
-        if (isNaN(value)) {  // check if the value is a number
+        if (isNaN(value)) {
+          // check if the value is a number
           socket.write(`-ERR value is not an integer\r\n`);
           return;
         }
 
-        value++; 
+        value++;
         store[key] = value.toString(); // store the value
+        socket.write(`:${value}\r\n`); // Redis integer reply
+      } else if (command === "DECR") {
+        const key = reply[1].toString();
+        let value = store[key] ? parseInt(store[key], 10) : 0;
+
+        if (isNaN(value)) {
+          socket.write(`-ERR value is not an integer\r\n`);
+          return;
+        }
+
+        value--;
+        store[key] = value.toString();
         socket.write(`:${value}\r\n`); // Redis integer reply
       } else {
         socket.write(`-ERR unknown command '${command}'\r\n`); // send the error response
