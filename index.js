@@ -21,10 +21,22 @@ const server = net.createServer((socket) => {
                 const key = reply[1];
                 const value = store[key];
                 if(!value){
-                    socket.write('$-1\r\n');
+                    socket.write('$-1\r\n');  // send the error response
                 }
-                else socket.write(`$${value.length}\r\n${value}\r\n`);
-            }  
+                else socket.write(`$${value.length}\r\n${value}\r\n`); // send the value
+            }
+            else if (command === "DEL") {
+                let deletedCount = 0; // initialize the deleted count
+                for (let i = 1; i < reply.length; i++) {
+                    const key = reply[i].toString(); // get the key
+                    if (store.hasOwnProperty(key)) {
+                        delete store[key]; // delete the key
+                        deletedCount++; // increment the deleted count
+                    }
+                }
+                socket.write(`:${deletedCount}\r\n`); // Redis integer reply
+            }
+            
             else {
                 socket.write(`-ERR unknown command '${command}'\r\n`); // send the error response
             }
@@ -32,8 +44,8 @@ const server = net.createServer((socket) => {
             console.log("=>", reply.map(v => v.toString())); // display the reply
         },
         returnError: (error) => {
-            console.log("=>", error);
-            socket.write(`-ERR ${error.message}\r\n`);
+            console.log("=>", error); // display the error
+            socket.write(`-ERR ${error.message}\r\n`); // send the error response
         },
     });
 
