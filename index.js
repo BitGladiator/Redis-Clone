@@ -38,6 +38,18 @@ const server = net.createServer((socket) => {
         const key = reply[1].toString(); // get the key
         const exists = store.hasOwnProperty(key) ? 1 : 0; // check if the key exists
         socket.write(`:${exists}\r\n`); // Redis integer reply
+      } else if (command === "INCR") {
+        const key = reply[1].toString();
+        let value = store[key] ? parseInt(store[key], 10) : 0; // get the value
+
+        if (isNaN(value)) {  // check if the value is a number
+          socket.write(`-ERR value is not an integer\r\n`);
+          return;
+        }
+
+        value++; 
+        store[key] = value.toString(); // store the value
+        socket.write(`:${value}\r\n`); // Redis integer reply
       } else {
         socket.write(`-ERR unknown command '${command}'\r\n`); // send the error response
       }
