@@ -1,56 +1,57 @@
 const net = require("net");
 const Parser = require("redis-parser");
+
 // create a store object
 const store = {};
 
 const server = net.createServer((socket) => {
-  console.log("Client Connected"); //display the success message
+  console.log("Client Connected");
 
   const parser = new Parser({
-    // create a new parser
     returnReply: (reply) => {
-      if (!Array.isArray(reply)) return; // if the reply is not an array
+      if (!Array.isArray(reply)) return;
 
-      const command = reply[0].toString().toUpperCase(); // get the command
+      const command = reply[0].toString().toUpperCase();
+
       if (command === "SET") {
-        // if the command is SET
-        const key = reply[1].toString(); // get the key
-        const value = reply[2].toString(); // get the value
-        store[key] = value; // store the value in the store object
-        socket.write("+OK\r\n"); // send the OK response
+        const key = reply[1].toString();
+        const value = reply[2].toString();
+        store[key] = value;
+        socket.write("+OK\r\n");
       } else if (command === "GET") {
-        const key = reply[1];
+        const key = reply[1].toString();
         const value = store[key];
-        if (!value) {
-          socket.write("$-1\r\n"); // send the error response
-        } else socket.write(`$${value.length}\r\n${value}\r\n`); // send the value
+        if (value === undefined) {
+          socket.write("$-1\r\n");
+        } else {
+          socket.write(`$${value.length}\r\n${value}\r\n`);
+        }
       } else if (command === "DEL") {
-        let deletedCount = 0; // initialize the deleted count
+        let deletedCount = 0;
         for (let i = 1; i < reply.length; i++) {
-          const key = reply[i].toString(); // get the key
+          const key = reply[i].toString();
           if (store.hasOwnProperty(key)) {
-            delete store[key]; // delete the key
-            deletedCount++; // increment the deleted count
+            delete store[key];
+            deletedCount++;
           }
         }
-        socket.write(`:${deletedCount}\r\n`); // Redis integer reply
+        socket.write(`:${deletedCount}\r\n`);
       } else if (command === "EXISTS") {
-        const key = reply[1].toString(); // get the key
-        const exists = store.hasOwnProperty(key) ? 1 : 0; // check if the key exists
-        socket.write(`:${exists}\r\n`); // Redis integer reply
+        const key = reply[1].toString();
+        const exists = store.hasOwnProperty(key) ? 1 : 0;
+        socket.write(`:${exists}\r\n`);
       } else if (command === "INCR") {
         const key = reply[1].toString();
-        let value = store[key] ? parseInt(store[key], 10) : 0; // get the value
+        let value = store[key] ? parseInt(store[key], 10) : 0;
 
         if (isNaN(value)) {
-          // check if the value is a number
           socket.write(`-ERR value is not an integer\r\n`);
           return;
         }
 
         value++;
-        store[key] = value.toString(); // store the value
-        socket.write(`:${value}\r\n`); // Redis integer reply
+        store[key] = value.toString();
+        socket.write(`:${value}\r\n`);
       } else if (command === "DECR") {
         const key = reply[1].toString();
         let value = store[key] ? parseInt(store[key], 10) : 0;
@@ -62,19 +63,37 @@ const server = net.createServer((socket) => {
 
         value--;
         store[key] = value.toString();
-        socket.write(`:${value}\r\n`); // Redis integer reply
+        socket.write(`:${value}\r\n`);
+
+      // ----------- NEW COMMANDS ------------
+      } else if (command === "DUMP") {
+        const key = reply[1].toString();
+        if (!store.hasOwnProperty(key)) {
+          socket.write("$-1\r\n");
+        } else {
+          const serialized = JSON.stringify(store[key]); // simple serialization
+          socket.write(`$${serialized.length}\r\n${serialized}\r\n`);
+        }
+      } else if (command === "FLUSHALL") {
+        for (let key in store) delete store[key];
+        socket.write("+OK\r\n");
+      } else if (command === "ECHO") {
+        const message = reply[1].toString();
+        socket.write(`$${message.length}\r\n${message}\r\n`);
+      // --------------------------------------
+
       } else {
-        socket.write(`-ERR unknown command '${command}'\r\n`); // send the error response
+        socket.write(`-ERR unknown command '${command}'\r\n`);
       }
 
       console.log(
         "=>",
         reply.map((v) => v.toString())
-      ); // display the reply
+      );
     },
     returnError: (error) => {
-      console.log("=>", error); // display the error
-      socket.write(`-ERR ${error.message}\r\n`); // send the error response
+      console.log("=>", error);
+      socket.write(`-ERR ${error.message}\r\n`);
     },
   });
 
