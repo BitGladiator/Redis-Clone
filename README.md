@@ -1,4 +1,4 @@
-# 🚀 Custom Redis Server
+# Custom Redis Server
 
 <div align="center">
 
@@ -14,29 +14,29 @@
 
 ---
 
-## 🌟 Features
+## Features
 
 ### Core Redis Commands
-- **🔧 SET/GET** - Store and retrieve string values
-- **🗑️ DEL** - Delete one or multiple keys
-- **🔍 EXISTS** - Check if keys exist
-- **⬆️ INCR/DECR** - Atomic integer increment/decrement operations
+- ** SET/GET** - Store and retrieve string values
+- ** DEL** - Delete one or multiple keys
+- ** EXISTS** - Check if keys exist
+- ** INCR/DECR** - Atomic integer increment/decrement operations
 
 ### Performance & Reliability
-- ⚡ **High Performance** - Built with Node.js event-driven architecture
-- 🔄 **RESP Protocol** - Full Redis Serialization Protocol compatibility
-- 🛡️ **Error Handling** - Comprehensive error management and validation
-- 📊 **Memory Efficient** - In-memory key-value storage with optimized data structures
+- **High Performance** - Built with Node.js event-driven architecture
+- **RESP Protocol** - Full Redis Serialization Protocol compatibility
+- **Error Handling** - Comprehensive error management and validation
+- **Memory Efficient** - In-memory key-value storage with optimized data structures
 
 ### Developer Experience
-- 🎯 **Simple API** - Easy to understand and extend
-- 📝 **Clean Code** - Well-structured and documented codebase
-- 🔌 **Standard Connections** - Works with any Redis client library
-- 🐛 **Debugging** - Built-in logging and error reporting
+- **Simple API** - Easy to understand and extend
+- **Clean Code** - Well-structured and documented codebase
+- **Standard Connections** - Works with any Redis client library
+- **Debugging** - Built-in logging and error reporting
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 - **Node.js** >= 14.0.0
@@ -76,7 +76,7 @@ docker run -p 8000:8000 custom-redis
 
 ---
 
-## 🎯 Usage
+## Usage
 
 ### Starting the Server
 
@@ -123,7 +123,7 @@ console.log(counter); // "1"
 
 ---
 
-## 📖 API Reference
+## API Reference
 
 ### Supported Commands
 
@@ -148,7 +148,7 @@ The server follows the Redis RESP (Redis Serialization Protocol):
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### Core Components
 
@@ -181,7 +181,7 @@ The server follows the Redis RESP (Redis Serialization Protocol):
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -213,7 +213,7 @@ else if (command === "KEYS") {
 
 ---
 
-## 📊 Performance
+## Performance
 
 ### Benchmarks
 
@@ -231,7 +231,7 @@ GET: 92592.59 requests per second
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Manual Testing
 
@@ -257,7 +257,7 @@ npm test
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Here's how to get started:
 
@@ -282,7 +282,7 @@ npm run format
 
 ---
 
-## 🛣️ Roadmap
+## Roadmap
 
 ### Planned Features
 - [ ] **Persistence** - Data persistence to disk
@@ -301,13 +301,13 @@ npm run format
 
 ---
 
-## 📄 License
+##License
 
 This project is licensed under the **ISC License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+##Acknowledgments
 
 - **Redis Team** - For the amazing Redis database and RESP protocol
 - **NodeRedis** - For the redis-parser library
