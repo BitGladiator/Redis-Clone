@@ -165,6 +165,9 @@ const roles = [
     { id: 'backend', label: 'Backend', icon: Zap },
     { id: 'fullstack', label: 'Fullstack', icon: Brain },
     { id: 'data', label: 'Data Science', icon: TrendingUp },
+    { id: 'systemDesign', label: 'System Design', icon: Target },
+    { id: 'behavioral', label: 'Behavioral', icon: Users },
+    { id: 'coding', label: 'Coding', icon: Code },
 ];
 
 const levels = [
@@ -173,10 +176,24 @@ const levels = [
     { id: 'senior', label: 'Senior' },
 ];
 
+const difficulties = [
+    { id: 'easy', label: 'Friendly', desc: 'Encouraging' },
+    { id: 'medium', label: 'Standard', desc: 'Balanced' },
+    { id: 'hard', label: 'Challenging', desc: 'Tough' },
+];
+
+const timerModes = [
+    { id: 'untimed', label: 'Untimed', desc: 'No time pressure' },
+    { id: 'relaxed', label: '10 min', desc: 'Relaxed pace' },
+    { id: 'standard', label: '5 min', desc: 'Standard' },
+];
+
 export function Landing({ onStart }) {
     const { theme } = useTheme();
     const [selectedRole, setSelectedRole] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('');
+    const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
+    const [selectedTimer, setSelectedTimer] = useState('untimed');
     const [showConfig, setShowConfig] = useState(false);
     const configRef = useRef(null);
 
@@ -184,7 +201,12 @@ export function Landing({ onStart }) {
 
     const handleStart = () => {
         if (selectedRole && selectedLevel) {
-            onStart({ role: selectedRole, level: selectedLevel });
+            onStart({
+                role: selectedRole,
+                level: selectedLevel,
+                difficulty: selectedDifficulty,
+                timer: selectedTimer,
+            });
         }
     };
 
@@ -484,6 +506,63 @@ export function Landing({ onStart }) {
                                         <span className="font-semibold">{level.label}</span>
                                     </motion.button>
                                 ))}
+                            </div>
+                        </div>
+
+                        {/* Difficulty & Timer Row */}
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                            {/* Difficulty */}
+                            <div>
+                                <label className={`block text-sm font-medium mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    Difficulty
+                                </label>
+                                <div className="flex gap-2">
+                                    {difficulties.map((diff) => (
+                                        <motion.button
+                                            key={diff.id}
+                                            onClick={() => setSelectedDifficulty(diff.id)}
+                                            className={`flex-1 p-3 rounded-xl text-center text-sm ${selectedDifficulty === diff.id
+                                                ? diff.id === 'easy'
+                                                    ? 'bg-emerald-500 text-white'
+                                                    : diff.id === 'hard'
+                                                        ? 'bg-red-500 text-white'
+                                                        : 'bg-indigo-500 text-white'
+                                                : isDark
+                                                    ? 'bg-white/5 text-slate-300 hover:bg-white/10'
+                                                    : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                                                }`}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <span className="font-medium">{diff.label}</span>
+                                        </motion.button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Timer */}
+                            <div>
+                                <label className={`block text-sm font-medium mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                    Timer Mode
+                                </label>
+                                <div className="flex gap-2">
+                                    {timerModes.map((timer) => (
+                                        <motion.button
+                                            key={timer.id}
+                                            onClick={() => setSelectedTimer(timer.id)}
+                                            className={`flex-1 p-3 rounded-xl text-center text-sm ${selectedTimer === timer.id
+                                                ? 'bg-purple-500 text-white'
+                                                : isDark
+                                                    ? 'bg-white/5 text-slate-300 hover:bg-white/10'
+                                                    : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                                                }`}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <span className="font-medium">{timer.label}</span>
+                                        </motion.button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Github, Sun, Moon, Menu, X, Home, Layers, Info, ChevronRight } from 'lucide-react';
+import { Github, Sun, Moon, Menu, X, Home, Layers, Info, ChevronRight, Settings } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { Logo } from './Logo';
 
@@ -33,6 +33,7 @@ export function Layout({ children, currentPage, onNavigate }) {
     const navItems = [
         { id: 'landing', label: 'Home' },
         { id: 'features', label: 'Features' },
+        { id: 'history', label: 'Progress' },
         { id: 'about', label: 'About' },
     ];
 
@@ -83,8 +84,8 @@ export function Layout({ children, currentPage, onNavigate }) {
                             key={item.id}
                             onClick={() => onNavigate(item.id)}
                             className={`w-full text-left px-4 py-3 rounded-xl mb-1 font-medium transition-all ${currentPage === item.id
-                                    ? isDark ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
-                                    : isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                ? isDark ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
+                                : isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                                 }`}
                         >
                             {item.label}
@@ -106,10 +107,10 @@ export function Layout({ children, currentPage, onNavigate }) {
 
             {/* PREMIUM NAVBAR */}
             <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
-                    ? isDark
-                        ? 'bg-[#030712]/80 backdrop-blur-xl border-b border-white/5 shadow-lg shadow-black/10'
-                        : 'bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-lg shadow-slate-200/20'
-                    : 'bg-transparent'
+                ? isDark
+                    ? 'bg-[#030712]/80 backdrop-blur-xl border-b border-white/5 shadow-lg shadow-black/10'
+                    : 'bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-lg shadow-slate-200/20'
+                : 'bg-transparent'
                 }`}>
                 <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-between h-20 px-6">
@@ -142,12 +143,12 @@ export function Layout({ children, currentPage, onNavigate }) {
                                         key={item.id}
                                         onClick={() => onNavigate(item.id)}
                                         className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${currentPage === item.id
-                                                ? isDark
-                                                    ? 'bg-white text-slate-900 shadow-lg'
-                                                    : 'bg-white text-slate-900 shadow-md'
-                                                : isDark
-                                                    ? 'text-slate-400 hover:text-white'
-                                                    : 'text-slate-600 hover:text-slate-900'
+                                            ? isDark
+                                                ? 'bg-white text-slate-900 shadow-lg'
+                                                : 'bg-white text-slate-900 shadow-md'
+                                            : isDark
+                                                ? 'text-slate-400 hover:text-white'
+                                                : 'text-slate-600 hover:text-slate-900'
                                             }`}
                                     >
                                         {item.label}
@@ -160,11 +161,21 @@ export function Layout({ children, currentPage, onNavigate }) {
                                 <button
                                     onClick={toggleTheme}
                                     className={`p-2.5 rounded-full transition-all duration-300 ${isDark
-                                            ? 'text-slate-400 hover:text-white hover:bg-white/10'
-                                            : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                        ? 'text-slate-400 hover:text-white hover:bg-white/10'
+                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                         }`}
                                 >
                                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                                </button>
+
+                                <button
+                                    onClick={() => onNavigate('settings')}
+                                    className={`p-2.5 rounded-full transition-all duration-300 ${isDark
+                                        ? 'text-slate-400 hover:text-white hover:bg-white/10'
+                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                        }`}
+                                >
+                                    <Settings size={18} />
                                 </button>
 
                                 <a
@@ -172,8 +183,8 @@ export function Layout({ children, currentPage, onNavigate }) {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className={`p-2.5 rounded-full transition-all duration-300 ${isDark
-                                            ? 'text-slate-400 hover:text-white hover:bg-white/10'
-                                            : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                        ? 'text-slate-400 hover:text-white hover:bg-white/10'
+                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                         }`}
                                 >
                                     <Github size={18} />
@@ -182,8 +193,8 @@ export function Layout({ children, currentPage, onNavigate }) {
                                 <button
                                     onClick={() => onNavigate('landing')}
                                     className={`ml-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${isDark
-                                            ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105'
-                                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105'
+                                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105'
+                                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105'
                                         }`}
                                 >
                                     Get Started
