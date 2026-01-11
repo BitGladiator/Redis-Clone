@@ -1,17 +1,123 @@
-// Extended Questions Database with Multiple Categories
+// Extended Questions Database with Answer Verification
 
 export const QUESTIONS = {
     // TECHNICAL - FRONTEND
     frontend: {
         junior: [
-            "What is the difference between let, const, and var in JavaScript?",
-            "Can you explain what the DOM is and how JavaScript interacts with it?",
-            "What are React hooks and why are they useful?",
-            "Explain the CSS box model.",
-            "What is the difference between margin and padding?",
-            "How does event bubbling work in JavaScript?",
-            "What is the purpose of useState in React?",
-            "Explain the difference between == and === in JavaScript.",
+            {
+                question: "What is the difference between let, const, and var in JavaScript?",
+                expectedPoints: [
+                    "var is function-scoped",
+                    "let and const are block-scoped",
+                    "const cannot be reassigned",
+                    "var is hoisted",
+                    "let and const have temporal dead zone"
+                ],
+                commonMistakes: [
+                    "saying const makes objects immutable",
+                    "confusing scope with hoisting"
+                ],
+                keyTerms: ["scope", "hoisting", "block", "function", "reassignment"]
+            },
+            {
+                question: "Can you explain what the DOM is and how JavaScript interacts with it?",
+                expectedPoints: [
+                    "DOM stands for Document Object Model",
+                    "tree structure representing HTML",
+                    "JavaScript can manipulate DOM elements",
+                    "methods like querySelector, getElementById",
+                    "can add, remove, or modify elements"
+                ],
+                commonMistakes: [
+                    "confusing DOM with HTML",
+                    "not mentioning it's a tree structure"
+                ],
+                keyTerms: ["document", "tree", "elements", "nodes", "manipulation"]
+            },
+            {
+                question: "What are React hooks and why are they useful?",
+                expectedPoints: [
+                    "functions that let you use state in functional components",
+                    "useState for state management",
+                    "useEffect for side effects",
+                    "cleaner than class components",
+                    "reusable stateful logic"
+                ],
+                commonMistakes: [
+                    "saying hooks work in class components",
+                    "not mentioning specific hooks"
+                ],
+                keyTerms: ["useState", "useEffect", "functional", "state", "lifecycle"]
+            },
+            {
+                question: "Explain the CSS box model.",
+                expectedPoints: [
+                    "content, padding, border, margin",
+                    "each layer wraps around content",
+                    "affects element sizing",
+                    "box-sizing property controls calculation"
+                ],
+                commonMistakes: [
+                    "confusing order of layers",
+                    "not mentioning all four parts"
+                ],
+                keyTerms: ["content", "padding", "border", "margin", "box-sizing"]
+            },
+            {
+                question: "What is the difference between margin and padding?",
+                expectedPoints: [
+                    "padding is inside the border",
+                    "margin is outside the border",
+                    "padding affects background",
+                    "margin creates space between elements"
+                ],
+                commonMistakes: [
+                    "reversing their positions"
+                ],
+                keyTerms: ["padding", "margin", "border", "spacing", "background"]
+            },
+            {
+                question: "How does event bubbling work in JavaScript?",
+                expectedPoints: [
+                    "events propagate from target to root",
+                    "child to parent elements",
+                    "can be stopped with stopPropagation",
+                    "opposite of event capturing"
+                ],
+                commonMistakes: [
+                    "confusing bubbling with capturing",
+                    "saying it goes from parent to child"
+                ],
+                keyTerms: ["bubbling", "propagation", "target", "parent", "stopPropagation"]
+            },
+            {
+                question: "What is the purpose of useState in React?",
+                expectedPoints: [
+                    "hook for adding state to functional components",
+                    "returns array with state value and setter",
+                    "triggers re-render when state changes",
+                    "replaces this.state in class components"
+                ],
+                commonMistakes: [
+                    "not mentioning it returns an array",
+                    "confusing with useEffect"
+                ],
+                keyTerms: ["hook", "state", "setter", "re-render", "functional"]
+            },
+            {
+                question: "Explain the difference between == and === in JavaScript.",
+                expectedPoints: [
+                    "== performs type coercion",
+                    "=== checks type and value",
+                    "=== is strict equality",
+                    "== can have unexpected results"
+                ],
+                commonMistakes: [
+                    "saying they're the same",
+                    "not mentioning type coercion"
+                ],
+                keyTerms: ["equality", "strict", "coercion", "type", "comparison"]
+            },
         ],
         mid: [
             "Explain the concept of closures in JavaScript with an example.",

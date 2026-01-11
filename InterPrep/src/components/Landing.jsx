@@ -58,36 +58,7 @@ const Background = ({ isDark }) => {
     );
 };
 
-// --- Navbar Component ---
-const Navbar = ({ isDark }) => (
-    <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className={`fixed top-0 left-0 right-0 z-50 h-16 border-b backdrop-blur-md ${isDark ? 'bg-slate-950/50 border-white/5' : 'bg-white/50 border-slate-200/50'
-            }`}
-    >
-        <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-                    <Sparkles size={18} />
-                </div>
-                <span className={`font-bold text-xl tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    InterPrep
-                </span>
-            </div>
 
-            <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`text-sm font-medium hover:text-indigo-500 transition-colors ${isDark ? 'text-slate-400' : 'text-slate-600'
-                    }`}
-            >
-                GitHub
-            </a>
-        </div>
-    </motion.nav>
-);
 
 const features = [
     {
@@ -157,7 +128,7 @@ export function Landing({ onStart }) {
     return (
         <div className={`min-h-screen w-full font-sans selection:bg-indigo-500/30 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
             <Background isDark={isDark} />
-            <Navbar isDark={isDark} />
+
 
             {/* HERO SECTION */}
             <section className="relative pt-32 pb-20 px-6 min-h-[90vh] flex flex-col items-center justify-center">
@@ -223,6 +194,55 @@ export function Landing({ onStart }) {
                             <Play size={20} className="fill-current" />
                             Watch Demo
                         </button>
+                    </motion.div>
+
+                    {/* Demo Video Container */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                        className="mt-16 max-w-5xl mx-auto"
+                    >
+                        <div className={`relative rounded-3xl overflow-hidden shadow-2xl ${isDark
+                            ? 'shadow-indigo-500/10 border border-white/10'
+                            : 'shadow-slate-300/50 border border-slate-200'
+                            }`}>
+                            {/* Demo Video */}
+                            <div className="relative aspect-video bg-slate-900">
+                                <video
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                    className="w-full h-full object-cover"
+                                >
+                                    <source src="/videos/demo.mov" type="video/quicktime" />
+                                    <source src="/videos/demo.mov" type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+
+                                {/* Overlay with demo badge */}
+                                <div className="absolute top-4 left-4 z-10">
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md">
+                                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                        <span className="text-sm font-semibold text-white">Live Demo</span>
+                                    </div>
+                                </div>
+
+                                {/* Glassmorphism overlay border */}
+                                <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/20 pointer-events-none" />
+                            </div>
+                        </div>
+
+                        {/* Video description */}
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.8 }}
+                            className={`text-center mt-4 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}
+                        >
+                            Watch how InterPrep guides you through a complete interview session
+                        </motion.p>
                     </motion.div>
 
                     {/* Stats */}

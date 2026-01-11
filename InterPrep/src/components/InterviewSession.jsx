@@ -68,7 +68,9 @@ export function InterviewSession({ config, onEnd }) {
     useEffect(() => {
         if (questions.length === 0) return;
         if (interviewState === 'intro') {
-            const greeting = `Hello! I'm ready to interview you for the ${config.level} ${config.role} position. Let's begin. ${questions[0]}`;
+            const firstQuestion = questions[0];
+            const questionText = typeof firstQuestion === 'object' ? firstQuestion.question : firstQuestion;
+            const greeting = `Hello! I'm ready to interview you for the ${config.level} ${config.role} position. Let's begin. ${questionText}`;
             setMessages([{ role: 'ai', text: greeting }]);
             speak(greeting);
             setInterviewState('asking');
@@ -119,16 +121,120 @@ export function InterviewSession({ config, onEnd }) {
         }
     };
 
-    const analyzeResponse = (text) => {
+    const analyzeResponse = (text, questionData) => {
         if (!text || text.trim().length === 0) {
             return "I didn't catch that. Could you please speak louder or try again? ";
         }
 
+        const userAnswer = text.toLowerCase();
+        const words = userAnswer.split(/\s+/);
+
+        // If question doesn't have verification data (old format), use basic analysis
+        if (!questionData || !questionData.expectedPoints) {
+            return basicAnalysis(text);
+        }
+
+        const { expectedPoints, commonMistakes, keyTerms } = questionData;
+
+        // Check which expected points were covered
+        const coveredPoints = [];
+        const missedPoints = [];
+
+        expectedPoints.forEach(point => {
+            const pointWords = point.toLowerCase().split(/\s+/);
+            const keyWordsInPoint = pointWords.filter(w => w.length > 3); // Focus on meaningful words
+            const matchCount = keyWordsInPoint.filter(word => userAnswer.includes(word)).length;
+
+            if (matchCount >= Math.ceil(keyWordsInPoint.length * 0.4)) { // 40% match threshold
+                coveredPoints.push(point);
+            } else {
+                missedPoints.push(point);
+            }
+        });
+
+        // Check for common mistakes
+        const detectedMistakes = [];
+        if (commonMistakes) {
+            commonMistakes.forEach(mistake => {
+                const mistakeWords = mistake.toLowerCase().split(/\s+/);
+                const mistakeKeyWords = mistakeWords.filter(w => w.length > 3);
+                const matchCount = mistakeKeyWords.filter(word => userAnswer.includes(word)).length;
+
+                if (matchCount >= Math.ceil(mistakeKeyWords.length * 0.5)) {
+                    detectedMistakes.push(mistake);
+                }
+            });
+        }
+
+        // Check for key terminology
+        const usedKeyTerms = keyTerms ? keyTerms.filter(term =>
+            userAnswer.includes(term.toLowerCase())
+        ) : [];
+
+        // Calculate correctness score
+        const coverageScore = expectedPoints.length > 0
+            ? (coveredPoints.length / expectedPoints.length) * 100
+            : 50;
+
+        // Build detailed feedback
+        let feedback = [];
+
+        // Overall assessment
+        if (coverageScore >= 80) {
+            feedback.push("Excellent answer!");
+        } else if (coverageScore >= 60) {
+            feedback.push("Good answer, but there's room for improvement.");
+        } else if (coverageScore >= 40) {
+            feedback.push("You're on the right track, but you missed some key points.");
+        } else {
+            feedback.push("Your answer needs more detail and accuracy.");
+        }
+
+        // What was correct
+        if (coveredPoints.length > 0) {
+            feedback.push(`\n\n✅ What you got right: ${coveredPoints.slice(0, 3).join(', ')}.`);
+        }
+
+        // What was missed
+        if (missedPoints.length > 0) {
+            const topMissed = missedPoints.slice(0, 2);
+            feedback.push(`\n\n❌ What you missed: ${topMissed.join(', ')}.`);
+        }
+
+        // Detected mistakes
+        if (detectedMistakes.length > 0) {
+            feedback.push(`\n\n⚠️ Common misconception detected: ${detectedMistakes[0]}.`);
+        }
+
+        // Improvement suggestions
+        const suggestions = [];
+        if (usedKeyTerms.length < keyTerms.length / 2) {
+            suggestions.push("use more technical terminology");
+        }
+        if (!/example|for instance|such as/i.test(text)) {
+            suggestions.push("provide a concrete example");
+        }
+        if (text.length < 100) {
+            suggestions.push("elaborate more on your points");
+        }
+
+        if (suggestions.length > 0) {
+            feedback.push(`\n\n💡 Suggestion: Try to ${suggestions.slice(0, 2).join(' and ')}.`);
+        }
+
+        // Show expected answer elements if score is low
+        if (coverageScore < 60 && missedPoints.length > 0) {
+            feedback.push(`\n\n📝 Key points to remember: ${missedPoints.slice(0, 3).join('; ')}.`);
+        }
+
+        return feedback.join(' ');
+    };
+
+    // Fallback basic analysis for questions without verification data
+    const basicAnalysis = (text) => {
         const words = text.toLowerCase().split(/\s+/);
-        const wordCount = words.length;
         const charCount = text.trim().length;
 
-        // Check for technical terms
         const technicalTerms = [
             'api', 'component', 'function', 'database', 'server', 'react', 'node',
             'javascript', 'python', 'algorithm', 'async', 'await', 'promise', 'closure',
@@ -138,58 +244,30 @@ export function InterviewSession({ config, onEnd }) {
         ];
         const technicalCount = words.filter(w => technicalTerms.includes(w)).length;
 
-        // Check for structure indicators
         const hasExample = /example|for instance|such as|like when/i.test(text);
         const hasExplanation = /because|since|therefore|thus|so that/i.test(text);
-        const hasMultiplePoints = text.includes('first') || text.includes('second') ||
-            text.includes('also') || text.includes('additionally');
 
         let feedback = [];
 
-        // Length analysis
         if (charCount < 30) {
-            feedback.push("That's quite brief. I'd love to hear more detail about your thought process");
+            feedback.push("That's quite brief. I'd love to hear more detail");
         } else if (charCount < 100) {
             feedback.push("Good start");
-        } else if (charCount < 300) {
-            feedback.push("Great detailed response");
         } else {
-            feedback.push("Excellent comprehensive answer");
+            feedback.push("Great detailed response");
         }
 
-        // Technical depth
         if (technicalCount >= 3) {
-            feedback.push("I appreciate the technical terminology you used");
-        } else if (technicalCount > 0) {
-            feedback.push("good technical awareness");
+            feedback.push("I appreciate the technical terminology");
         }
-
-        // Structure analysis
         if (hasExample) {
-            feedback.push("providing examples really strengthens your answer");
+            feedback.push("providing examples strengthens your answer");
         }
         if (hasExplanation) {
             feedback.push("your reasoning is clear");
         }
-        if (hasMultiplePoints) {
-            feedback.push("nice structured approach");
-        }
 
-        // Suggestions for improvement
-        const suggestions = [];
-        if (!hasExample && charCount > 50) {
-            suggestions.push("consider adding a concrete example");
-        }
-        if (technicalCount === 0 && wordCount > 10) {
-            suggestions.push("try to incorporate more technical terminology");
-        }
-
-        let result = feedback.join(", ") + ". ";
-        if (suggestions.length > 0) {
-            result += "For next time, " + suggestions.join(" and ") + ". ";
-        }
-
-        return result;
+        return feedback.join(", ") + ".";
     };
 
     const handleUserResponse = () => {
@@ -207,11 +285,18 @@ export function InterviewSession({ config, onEnd }) {
         // Process after a short delay to show the processing state
         processingTimeoutRef.current = setTimeout(() => {
             const nextIdx = currentIdx + 1;
-            const feedback = analyzeResponse(userText);
+
+            // Get current question data for verification
+            const currentQuestion = questions[currentIdx];
+            const questionData = typeof currentQuestion === 'object' ? currentQuestion : null;
+
+            const feedback = analyzeResponse(userText, questionData);
 
             if (nextIdx < questions.length) {
                 setCurrentIdx(nextIdx);
-                const text = `${feedback} Let's move on. ${questions[nextIdx]}`;
+                const nextQuestion = questions[nextIdx];
+                const nextQuestionText = typeof nextQuestion === 'object' ? nextQuestion.question : nextQuestion;
+                const text = `${feedback} Let's move on. ${nextQuestionText}`;
                 setMessages(prev => [...prev, { role: 'ai', text }]);
                 speak(text);
                 setInterviewState('asking');
@@ -309,7 +394,11 @@ export function InterviewSession({ config, onEnd }) {
                             </p>
                             <h2 className={`text-2xl md:text-3xl font-display font-semibold leading-relaxed ${isDark ? 'text-white' : 'text-slate-900'
                                 }`}>
-                                {questions[currentIdx] || "Preparing next question..."}
+                                {questions[currentIdx]
+                                    ? (typeof questions[currentIdx] === 'object'
+                                        ? questions[currentIdx].question
+                                        : questions[currentIdx])
+                                    : "Preparing next question..."}
                             </h2>
                         </div>
 

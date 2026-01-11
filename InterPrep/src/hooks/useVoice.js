@@ -20,7 +20,7 @@ export function useVoice() {
                 recognition.continuous = true;
                 recognition.interimResults = true;
                 recognition.lang = 'en-US';
-                recognition.maxAlternatives = 1;
+                recognition.maxAlternatives = 3; // Get multiple alternatives for better accuracy
 
                 recognition.onresult = (event) => {
                     let interim = '';
@@ -28,6 +28,13 @@ export function useVoice() {
 
                     for (let i = event.resultIndex; i < event.results.length; ++i) {
                         const transcript = event.results[i][0].transcript;
+                        const confidence = event.results[i][0].confidence;
+
+                        // Log confidence for debugging
+                        if (event.results[i].isFinal) {
+                            console.log('Final transcript confidence:', confidence);
+                        }
+
                         if (event.results[i].isFinal) {
                             final += transcript + ' ';
                         } else {
@@ -40,6 +47,7 @@ export function useVoice() {
                         finalTranscriptRef.current += final;
                         setFinalTranscript(finalTranscriptRef.current.trim());
                         setTranscript(finalTranscriptRef.current.trim());
+                        console.log('Captured final transcript:', final);
                     }
 
                     if (interim) {
@@ -56,10 +64,21 @@ export function useVoice() {
 
                 recognition.onerror = (event) => {
                     console.error('Speech recognition error:', event.error);
+
+                    // Handle different error types
                     if (event.error === 'no-speech') {
-                        console.log('No speech detected, stopping...');
+                        console.log('No speech detected - this is normal, waiting for speech...');
+                        // Don't stop listening, just continue
+                    } else if (event.error === 'audio-capture') {
+                        console.error('Microphone not accessible');
+                        setIsListening(false);
+                    } else if (event.error === 'not-allowed') {
+                        console.error('Microphone permission denied');
+                        setIsListening(false);
+                    } else {
+                        console.error('Other error:', event.error);
+                        setIsListening(false);
                     }
-                    setIsListening(false);
                 };
 
                 recognition.onstart = () => {
