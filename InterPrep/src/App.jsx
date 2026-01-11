@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './context/ThemeContext';
 import { Layout } from './components/Layout';
 import { Landing } from './components/Landing';
@@ -76,6 +77,36 @@ function App() {
 
     return (
         <ThemeProvider>
+            {/* Toast Notifications */}
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 3000,
+                    style: {
+                        background: 'var(--toast-bg)',
+                        color: 'var(--toast-color)',
+                        border: '1px solid var(--toast-border)',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        backdropFilter: 'blur(12px)',
+                    },
+                    success: {
+                        iconTheme: {
+                            primary: '#10b981',
+                            secondary: '#fff',
+                        },
+                    },
+                    error: {
+                        iconTheme: {
+                            primary: '#ef4444',
+                            secondary: '#fff',
+                        },
+                    },
+                }}
+            />
+
             {/* Onboarding overlay */}
             {showOnboarding && (
                 <Onboarding onComplete={handleOnboardingComplete} />

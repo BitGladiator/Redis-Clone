@@ -40,10 +40,13 @@
   }
 
   @keyframes gradient-x {
-    0%, 100% {
+
+    0%,
+    100% {
       background-size: 200% 200%;
       background-position: left center;
     }
+
     50% {
       background-size: 200% 200%;
       background-position: right center;
@@ -87,6 +90,19 @@
   body {
     @apply antialiased min-h-screen;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Toast styling variables */
+  :root {
+    --toast-bg: rgba(255, 255, 255, 0.95);
+    --toast-color: #0f172a;
+    --toast-border: rgba(226, 232, 240, 0.8);
+  }
+
+  .dark {
+    --toast-bg: rgba(15, 23, 42, 0.95);
+    --toast-color: #f1f5f9;
+    --toast-border: rgba(255, 255, 255, 0.1);
   }
 
   /* Custom Scrollbar - Dark Mode */
@@ -158,5 +174,18 @@
 
   .animation-delay-500 {
     animation-delay: 500ms;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-gpu {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
   }
 }

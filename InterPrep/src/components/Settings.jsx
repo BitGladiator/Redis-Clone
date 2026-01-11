@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 import {
     Settings as SettingsIcon, Volume2, Moon, Sun, Bell,
     Mic, Save, Trash2, Download, ChevronLeft,
@@ -7,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { getSettings, saveSettings, exportData, clearHistory, resetGamification, resetOnboarding } from '../lib/storage';
+import { ConfirmModal } from './ConfirmModal';
 
 // --- Sub-components ---
 
@@ -80,6 +82,7 @@ export function Settings({ onBack }) {
 
     const [settings, setSettings] = useState(() => getSettings());
     const [saved, setSaved] = useState(false);
+    const [showClearModal, setShowClearModal] = useState(false);
 
     useEffect(() => {
         if (settings.theme !== theme) {
@@ -94,27 +97,40 @@ export function Settings({ onBack }) {
     const handleSave = () => {
         saveSettings(settings);
         setSaved(true);
+        toast.success('⚙️ Settings saved successfully!');
         setTimeout(() => setSaved(false), 2000);
     };
 
     const handleExport = () => {
-        const data = exportData();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `interprep-data-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+        toast.promise(
+            new Promise((resolve) => {
+                setTimeout(() => {
+                    const data = exportData();
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `interprep-data-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    resolve();
+                }, 800);
+            }),
+            {
+                loading: 'Preparing export...',
+                success: '📦 Data exported successfully!',
+                error: 'Failed to export data',
+            }
+        );
     };
 
-    const handleClearData = () => {
-        if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
-            clearHistory();
-            resetGamification();
-            resetOnboarding();
-            alert('All data has been cleared.');
-        }
+    const handleClearDataConfirm = () => {
+        clearHistory();
+        resetGamification();
+        resetOnboarding();
+        toast.success('🗑️ All data has been cleared!', {
+            duration: 3000,
+        });
     };
 
     return (
@@ -281,7 +297,7 @@ export function Settings({ onBack }) {
                                         Export Data
                                     </button>
                                     <button
-                                        onClick={handleClearData}
+                                        onClick={() => setShowClearModal(true)}
                                         className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all ${isDark
                                             ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
                                             : 'bg-red-50 text-red-600 hover:bg-red-100'
@@ -313,6 +329,18 @@ export function Settings({ onBack }) {
                     </div>
                 </motion.div>
             </div>
+
+            {/* Confirmation Modal */}
+            <ConfirmModal
+                isOpen={showClearModal}
+                onClose={() => setShowClearModal(false)}
+                onConfirm={handleClearDataConfirm}
+                title="Clear All Data?"
+                message="This will permanently delete all your interview history, progress, and settings. This action cannot be undone."
+                confirmText="Yes, Clear Everything"
+                cancelText="Cancel"
+                variant="danger"
+            />
         </div>
     );
 }
