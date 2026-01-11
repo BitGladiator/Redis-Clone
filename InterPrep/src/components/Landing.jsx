@@ -1,261 +1,183 @@
-import React, { useEffect, useRef, useState, forwardRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import {
-    Mic, Brain, Target, Zap, ChevronRight,
-    Code, Users, TrendingUp, Play, Star,
-    ArrowRight, CheckCircle, MessageSquare,
-    BarChart3, Clock, Shield, Sparkles
+    Mic, Brain, Target, ChevronRight,
+    Users, Play, ArrowRight, BarChart3, Sparkles,
+    CheckCircle2, Terminal, Cpu, Globe
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-// Animated section wrapper with ref forwarding
-const Section = forwardRef(({ children, className = "", id = "" }, forwardedRef) => {
-    const internalRef = useRef(null);
-    const ref = forwardedRef || internalRef;
-    const isInView = useInView(ref, { once: true, margin: "-100px" });
-
+// --- Animated Background Component ---
+const Background = ({ isDark }) => {
     return (
-        <motion.section
-            ref={ref}
-            id={id}
-            initial={{ opacity: 0, y: 50 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-            transition={{ duration: 0.6 }}
-            className={className}
-        >
-            {children}
-        </motion.section>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Base Gradient */}
+            <div className={`absolute inset-0 transition-colors duration-700 ${isDark
+                    ? 'bg-slate-950'
+                    : 'bg-slate-50'
+                }`} />
+
+            {/* Animated Blobs */}
+            <div className="absolute inset-0 opacity-40">
+                <motion.div
+                    animate={{
+                        x: [0, 100, 0],
+                        y: [0, -50, 0],
+                        scale: [1, 1.2, 1]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className={`absolute top-0 left-0 w-[500px] h-[500px] rounded-full blur-[100px] ${isDark ? 'bg-indigo-900/40' : 'bg-indigo-200/40'
+                        }`}
+                />
+                <motion.div
+                    animate={{
+                        x: [0, -100, 0],
+                        y: [0, 100, 0],
+                        scale: [1, 1.5, 1]
+                    }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                    className={`absolute top-1/4 right-0 w-[600px] h-[600px] rounded-full blur-[120px] ${isDark ? 'bg-purple-900/30' : 'bg-purple-200/40'
+                        }`}
+                />
+                <motion.div
+                    animate={{
+                        x: [0, 50, 0],
+                        y: [0, 50, 0],
+                        scale: [1, 1.3, 1]
+                    }}
+                    transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                    className={`absolute bottom-0 left-1/3 w-[800px] h-[600px] rounded-full blur-[130px] ${isDark ? 'bg-cyan-900/20' : 'bg-cyan-200/40'
+                        }`}
+                />
+            </div>
+
+            {/* Grid Overlay */}
+            <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay`} />
+            <div className={`absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]`} />
+        </div>
     );
-});
-
-
-// Interactive 3D Background (for hero only)
-const Interactive3DBackground = ({ isDark }) => {
-    const canvasRef = useRef(null);
-    const mouseRef = useRef({ x: 0, y: 0, active: false });
-    const shapesRef = useRef([]);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        let animationId;
-
-        const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = 800;
-        };
-        resize();
-        window.addEventListener('resize', resize);
-
-        class Shape3D {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.z = Math.random() * 400 + 100;
-                this.size = Math.random() * 40 + 20;
-                this.rotationX = Math.random() * Math.PI * 2;
-                this.rotationY = Math.random() * Math.PI * 2;
-                this.rotSpeed = (Math.random() - 0.5) * 0.02;
-                this.hue = 230 + Math.random() * 50;
-                this.originalX = this.x;
-                this.originalY = this.y;
-            }
-
-            update(mouseX, mouseY, active) {
-                const dx = mouseX - this.x;
-                const dy = mouseY - this.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-
-                if (active && dist < 250) {
-                    const force = (250 - dist) / 250;
-                    this.x += dx * force * 0.05;
-                    this.y += dy * force * 0.05;
-                    this.rotationX += this.rotSpeed * 3;
-                    this.rotationY += this.rotSpeed * 3;
-                } else {
-                    this.x += (this.originalX - this.x) * 0.02;
-                    this.y += (this.originalY - this.y) * 0.02;
-                    this.rotationX += this.rotSpeed;
-                    this.rotationY += this.rotSpeed;
-                }
-            }
-
-            draw(ctx) {
-                const perspective = 500 / (500 + this.z);
-                const s = this.size * perspective;
-                const cos = Math.cos(this.rotationX) * 0.4;
-                const sin = Math.sin(this.rotationY) * 0.4;
-
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.strokeStyle = isDark
-                    ? `hsla(${this.hue}, 70%, 60%, ${perspective * 0.6})`
-                    : `hsla(${this.hue}, 60%, 50%, ${perspective * 0.4})`;
-                ctx.lineWidth = 1.5 * perspective;
-
-                // Draw cube
-                ctx.beginPath();
-                ctx.rect(-s / 2, -s / 2, s, s);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.rect(-s / 2 + s * cos, -s / 2 + s * sin, s, s);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(-s / 2, -s / 2); ctx.lineTo(-s / 2 + s * cos, -s / 2 + s * sin);
-                ctx.moveTo(s / 2, -s / 2); ctx.lineTo(s / 2 + s * cos, -s / 2 + s * sin);
-                ctx.moveTo(s / 2, s / 2); ctx.lineTo(s / 2 + s * cos, s / 2 + s * sin);
-                ctx.moveTo(-s / 2, s / 2); ctx.lineTo(-s / 2 + s * cos, s / 2 + s * sin);
-                ctx.stroke();
-                ctx.restore();
-            }
-        }
-
-        shapesRef.current = Array.from({ length: 10 }, () => new Shape3D());
-
-        const handleMouseMove = (e) => {
-            const rect = canvas.getBoundingClientRect();
-            mouseRef.current = { x: e.clientX, y: e.clientY - rect.top, active: true };
-        };
-        window.addEventListener('mousemove', handleMouseMove);
-
-        const animate = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            shapesRef.current.forEach(shape => {
-                shape.update(mouseRef.current.x, mouseRef.current.y, mouseRef.current.active);
-                shape.draw(ctx);
-            });
-            animationId = requestAnimationFrame(animate);
-        };
-        animate();
-
-        return () => {
-            cancelAnimationFrame(animationId);
-            window.removeEventListener('resize', resize);
-            window.removeEventListener('mousemove', handleMouseMove);
-        };
-    }, [isDark]);
-
-    return <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none" />;
 };
 
+// --- Navbar Component ---
+const Navbar = ({ isDark }) => (
+    <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={`fixed top-0 left-0 right-0 z-50 h-16 border-b backdrop-blur-md ${isDark ? 'bg-slate-950/50 border-white/5' : 'bg-white/50 border-slate-200/50'
+            }`}
+    >
+        <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+                    <Sparkles size={18} />
+                </div>
+                <span className={`font-bold text-xl tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    InterPrep
+                </span>
+            </div>
+
+            <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`text-sm font-medium hover:text-indigo-500 transition-colors ${isDark ? 'text-slate-400' : 'text-slate-600'
+                    }`}
+            >
+                GitHub
+            </a>
+        </div>
+    </motion.nav>
+);
+
 const features = [
-    { icon: Mic, title: 'Voice-Powered', desc: 'Natural conversations with AI interviewer using speech recognition', color: 'indigo' },
-    { icon: Brain, title: 'AI Analysis', desc: 'Smart feedback on your responses, communication style, and confidence', color: 'purple' },
-    { icon: Target, title: 'Role-Specific', desc: 'Questions tailored for Frontend, Backend, Fullstack, and Data Science', color: 'teal' },
-    { icon: BarChart3, title: 'Progress Tracking', desc: 'Track improvement over time with detailed performance reports', color: 'orange' },
-    { icon: Clock, title: 'Real-Time', desc: 'Instant feedback during and after your practice sessions', color: 'pink' },
-    { icon: Shield, title: 'Privacy First', desc: 'Your practice sessions are private and secure', color: 'emerald' },
-];
-
-const steps = [
-    { num: '01', title: 'Choose Your Role', desc: 'Select from Frontend, Backend, Fullstack, or Data Science positions' },
-    { num: '02', title: 'Set Your Level', desc: 'Pick Junior, Mid-Level, or Senior based on your experience' },
-    { num: '03', title: 'Start Practicing', desc: 'Answer questions using your voice, just like a real interview' },
-    { num: '04', title: 'Get Feedback', desc: 'Receive detailed analysis and tips to improve your performance' },
-];
-
-const testimonials = [
-    { name: 'Sarah Chen', role: 'Frontend Developer at Google', text: 'InterPrep helped me practice until I felt confident. Landed my dream job!', avatar: '👩‍💻' },
-    { name: 'Marcus Johnson', role: 'Backend Engineer at Meta', text: 'The AI feedback was surprisingly accurate. Best interview prep tool I\'ve used.', avatar: '👨‍💻' },
-    { name: 'Priya Patel', role: 'Data Scientist at Netflix', text: 'Unlimited practice sessions made all the difference. Highly recommend!', avatar: '👩‍🔬' },
+    {
+        icon: Mic,
+        title: 'Voice-Powered AI',
+        desc: 'Speak naturally with our advanced AI interviewer that understands context and nuance.',
+        color: 'from-blue-500 to-cyan-500'
+    },
+    {
+        icon: Brain,
+        title: 'Real-time Feedback',
+        desc: 'Get instant, actionable coaching on your answers, tone, and pacing.',
+        color: 'from-purple-500 to-pink-500'
+    },
+    {
+        icon: Terminal,
+        title: 'Live Coding',
+        desc: 'Solve algorithmic problems in a collaborative code editor with syntax highlighting.',
+        color: 'from-green-500 to-emerald-500'
+    },
+    {
+        icon: BarChart3,
+        title: 'Performance Analytics',
+        desc: 'Track your growth over time with detailed charts and skill breakdowns.',
+        color: 'from-orange-500 to-red-500'
+    },
 ];
 
 const roles = [
-    { id: 'frontend', label: 'Frontend', icon: Code },
-    { id: 'backend', label: 'Backend', icon: Zap },
-    { id: 'fullstack', label: 'Fullstack', icon: Brain },
-    { id: 'data', label: 'Data Science', icon: TrendingUp },
-    { id: 'systemDesign', label: 'System Design', icon: Target },
-    { id: 'behavioral', label: 'Behavioral', icon: Users },
-    { id: 'coding', label: 'Coding', icon: Code },
+    { id: 'frontend', label: 'Frontend Developer', icon: Globe, color: 'text-cyan-500' },
+    { id: 'backend', label: 'Backend Developer', icon: Terminal, color: 'text-green-500' },
+    { id: 'fullstack', label: 'Full Stack Engineer', icon: Cpu, color: 'text-purple-500' },
+    { id: 'systemDesign', label: 'System Design', icon: Target, color: 'text-orange-500' },
+    { id: 'behavioral', label: 'Behavioral Round', icon: Users, color: 'text-pink-500' },
 ];
 
 const levels = [
-    { id: 'junior', label: 'Junior' },
-    { id: 'mid', label: 'Mid-Level' },
-    { id: 'senior', label: 'Senior' },
-];
-
-const difficulties = [
-    { id: 'easy', label: 'Friendly', desc: 'Encouraging' },
-    { id: 'medium', label: 'Standard', desc: 'Balanced' },
-    { id: 'hard', label: 'Challenging', desc: 'Tough' },
-];
-
-const timerModes = [
-    { id: 'untimed', label: 'Untimed', desc: 'No time pressure' },
-    { id: 'relaxed', label: '10 min', desc: 'Relaxed pace' },
-    { id: 'standard', label: '5 min', desc: 'Standard' },
+    { id: 'junior', label: 'Junior (0-2 YOE)', desc: 'Focus on fundamentals' },
+    { id: 'mid', label: 'Mid-Level (3-5 YOE)', desc: 'System design & depth' },
+    { id: 'senior', label: 'Senior (5+ YOE)', desc: 'Leadership & scale' },
 ];
 
 export function Landing({ onStart }) {
     const { theme } = useTheme();
     const [selectedRole, setSelectedRole] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('');
-    const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
-    const [selectedTimer, setSelectedTimer] = useState('untimed');
-    const [showConfig, setShowConfig] = useState(false);
     const configRef = useRef(null);
-
     const isDark = theme === 'dark';
 
     const handleStart = () => {
         if (selectedRole && selectedLevel) {
-            onStart({
-                role: selectedRole,
-                level: selectedLevel,
-                difficulty: selectedDifficulty,
-                timer: selectedTimer,
-            });
+            onStart({ role: selectedRole, level: selectedLevel, difficulty: 'medium', timer: 'untimed' });
         }
     };
 
     const scrollToConfig = () => {
-        setShowConfig(true);
-        setTimeout(() => {
-            configRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-    };
-
-    const getColorClass = (color) => {
-        const colors = {
-            indigo: isDark ? 'bg-indigo-500/20 text-indigo-400' : 'bg-indigo-100 text-indigo-600',
-            purple: isDark ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-600',
-            teal: isDark ? 'bg-teal-500/20 text-teal-400' : 'bg-teal-100 text-teal-600',
-            orange: isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-100 text-orange-600',
-            pink: isDark ? 'bg-pink-500/20 text-pink-400' : 'bg-pink-100 text-pink-600',
-            emerald: isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-600',
-        };
-        return colors[color];
+        configRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     return (
-        <div className="w-full">
-            {/* HERO SECTION */}
-            <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-                <Interactive3DBackground isDark={isDark} />
+        <div className={`min-h-screen w-full font-sans selection:bg-indigo-500/30 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+            <Background isDark={isDark} />
+            <Navbar isDark={isDark} />
 
-                <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+            {/* HERO SECTION */}
+            <section className="relative pt-32 pb-20 px-6 min-h-[90vh] flex flex-col items-center justify-center">
+                <div className="max-w-5xl mx-auto text-center z-10">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${isDark ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-600'
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium mb-8 border backdrop-blur-md shadow-sm ${isDark
+                                ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'
+                                : 'bg-white/80 text-indigo-600 border-indigo-100'
                             }`}
                     >
-                        <Sparkles size={14} />
-                        AI-Powered Interview Practice
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        </span>
+                        AI-Powered Mock Interviews
                     </motion.div>
 
                     <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-[1.1] ${isDark ? 'text-white' : 'text-slate-900'
-                            }`}
+                        transition={{ delay: 0.1, duration: 0.8 }}
+                        className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8"
                     >
-                        Ace Your Next
-                        <br />
-                        <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                        Master Your <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-gradient-x bg-300%">
                             Tech Interview
                         </span>
                     </motion.h1>
@@ -263,79 +185,78 @@ export function Landing({ onStart }) {
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className={`text-lg md:text-xl max-w-2xl mx-auto mb-10 ${isDark ? 'text-slate-400' : 'text-slate-600'
+                        transition={{ delay: 0.2, duration: 0.8 }}
+                        className={`text-xl md:text-2xl max-w-2xl mx-auto mb-12 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'
                             }`}
                     >
-                        Practice with our AI interviewer that adapts to your role and experience.
-                        Get real-time feedback and land your dream job.
+                        Practice with an intelligent AI that adapts to your responses,
+                        challenges your logic, and helps you land the job.
                     </motion.p>
 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="flex flex-col sm:flex-row gap-4 justify-center"
+                        transition={{ delay: 0.3, duration: 0.8 }}
+                        className="flex flex-col sm:flex-row items-center justify-center gap-4"
                     >
-                        <motion.button
+                        <button
                             onClick={scrollToConfig}
-                            className={`group flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-lg font-semibold ${isDark ? 'bg-white text-slate-900 hover:bg-slate-100' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                                } shadow-2xl`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.98 }}
+                            className="group relative px-8 py-4 bg-indigo-600 text-white rounded-2xl font-semibold text-lg hover:bg-indigo-700 transition-all shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)] hover:shadow-[0_0_60px_-10px_rgba(79,70,229,0.6)] hover:scale-105 active:scale-95 cursor-pointer"
                         >
+                            <span className="flex items-center gap-2">
+                                Start Practicing Now
+                                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            </span>
+                        </button>
+
+                        <button className={`px-8 py-4 rounded-2xl font-semibold text-lg border transition-all hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer ${isDark
+                                ? 'border-slate-700 hover:bg-slate-800 text-slate-300'
+                                : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                            }`}>
                             <Play size={20} className="fill-current" />
-                            Start Free Practice
-                            <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                        </motion.button>
-                        <motion.button
-                            className={`flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-medium ${isDark ? 'text-slate-400 hover:text-white border border-white/10 hover:bg-white/5' : 'text-slate-600 border border-slate-200 hover:bg-slate-50'
-                                }`}
-                            whileHover={{ scale: 1.02 }}
-                        >
                             Watch Demo
-                        </motion.button>
+                        </button>
                     </motion.div>
 
                     {/* Stats */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="mt-16 flex flex-wrap justify-center gap-8 md:gap-16"
+                        transition={{ delay: 0.6 }}
+                        className={`mt-20 pt-10 border-t ${isDark ? 'border-white/10' : 'border-slate-200'}`}
                     >
-                        {[
-                            { value: '10K+', label: 'Practice Sessions' },
-                            { value: '95%', label: 'Success Rate' },
-                            { value: '50+', label: 'Question Templates' },
-                        ].map((stat, idx) => (
-                            <div key={idx} className="text-center">
-                                <div className={`text-3xl md:text-4xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                    {stat.value}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                            {[
+                                { label: 'Active Users', value: '10,000+' },
+                                { label: 'Interviews Conducted', value: '50k+' },
+                                { label: 'Offer Rate', value: '89%' },
+                                { label: 'Companies', value: '120+' }
+                            ].map((stat, i) => (
+                                <div key={i}>
+                                    <div className={`text-2xl md:text-3xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                        {stat.value}
+                                    </div>
+                                    <div className={`text-sm font-medium ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+                                        {stat.label}
+                                    </div>
                                 </div>
-                                <div className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-                                    {stat.label}
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </motion.div>
                 </div>
             </section>
 
             {/* FEATURES SECTION */}
-            <Section className={`py-24 px-4 ${isDark ? 'bg-white/[0.02]' : 'bg-slate-50'}`}>
-                <div className="max-w-6xl mx-auto">
+            <section className={`py-20 relative overflow-hidden ${isDark ? 'bg-slate-900/50' : 'bg-slate-50/50'}`}>
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="text-center mb-16">
-                        <h2 className={`text-3xl md:text-5xl font-display font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                            Everything You Need to
-                            <span className="block text-indigo-500">Succeed</span>
-                        </h2>
-                        <p className={`max-w-2xl mx-auto ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                            Comprehensive tools designed to help you prepare for and ace your tech interviews.
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Everything you need to prep</h2>
+                        <p className={`text-xl max-w-2xl mx-auto ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                            Comprehensive tools designed to simulate real-world interview conditions.
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {features.map((feature, idx) => (
                             <motion.div
                                 key={idx}
@@ -343,255 +264,135 @@ export function Landing({ onStart }) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: idx * 0.1 }}
-                                className={`p-6 rounded-2xl ${isDark ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-white border border-slate-200 shadow-lg hover:shadow-xl'
-                                    } transition-all`}
+                                className={`group p-8 rounded-3xl border transition-all duration-300 hover:shadow-2xl ${isDark
+                                        ? 'bg-slate-800/20 border-slate-700/50 hover:border-indigo-500/30 hover:bg-slate-800/40'
+                                        : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50 hover:border-indigo-100'
+                                    }`}
                             >
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${getColorClass(feature.color)}`}>
-                                    <feature.icon size={24} />
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br ${feature.color} text-white shadow-lg`}>
+                                    <feature.icon size={28} />
                                 </div>
-                                <h3 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                     {feature.title}
                                 </h3>
-                                <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>
+                                <p className={`leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                                     {feature.desc}
                                 </p>
                             </motion.div>
                         ))}
                     </div>
                 </div>
-            </Section>
+            </section>
 
-            {/* HOW IT WORKS */}
-            <Section className="py-24 px-4">
-                <div className="max-w-5xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className={`text-3xl md:text-5xl font-display font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                            How It Works
-                        </h2>
-                        <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>
-                            Four simple steps to interview success
-                        </p>
-                    </div>
+            {/* CONFIGURATION SECTION */}
+            <section ref={configRef} className="py-32 px-6 relative">
+                <div className="max-w-4xl mx-auto">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        className={`rounded-[2.5rem] p-8 md:p-12 border shadow-2xl relative overflow-hidden ${isDark
+                                ? 'bg-slate-900/80 border-slate-700/50 backdrop-blur-xl'
+                                : 'bg-white border-slate-200 shadow-slate-200/50'
+                            }`}
+                    >
+                        {/* Background glow in card */}
+                        <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] opacity-50 ${isDark ? 'bg-indigo-600' : 'bg-indigo-300'}`} />
+                        <div className={`absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-[100px] opacity-50 ${isDark ? 'bg-purple-600' : 'bg-purple-300'}`} />
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {steps.map((step, idx) => (
-                            <motion.div
-                                key={idx}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: idx * 0.1 }}
-                                className="text-center"
-                            >
-                                <div className={`text-5xl font-display font-bold mb-4 ${isDark ? 'text-indigo-500/30' : 'text-indigo-200'
-                                    }`}>
-                                    {step.num}
-                                </div>
-                                <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                    {step.title}
-                                </h3>
-                                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                                    {step.desc}
-                                </p>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </Section>
+                        <div className="relative z-10">
+                            <h2 className="text-3xl md:text-4xl font-bold text-center mb-2">
+                                Ready to start?
+                            </h2>
+                            <p className={`text-center mb-10 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                Customize your interview session below
+                            </p>
 
-            {/* TESTIMONIALS */}
-            <Section className={`py-24 px-4 ${isDark ? 'bg-white/[0.02]' : 'bg-slate-50'}`}>
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className={`text-3xl md:text-5xl font-display font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                            Loved by Developers
-                        </h2>
-                        <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>
-                            Join thousands who landed their dream jobs
-                        </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {testimonials.map((t, idx) => (
-                            <motion.div
-                                key={idx}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: idx * 0.1 }}
-                                className={`p-6 rounded-2xl ${isDark ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200 shadow-lg'
-                                    }`}
-                            >
-                                <div className="flex items-center gap-1 mb-4">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
-                                    ))}
-                                </div>
-                                <p className={`mb-6 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                                    "{t.text}"
-                                </p>
-                                <div className="flex items-center gap-3">
-                                    <div className="text-3xl">{t.avatar}</div>
-                                    <div>
-                                        <div className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.name}</div>
-                                        <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{t.role}</div>
+                            <div className="grid md:grid-cols-2 gap-12">
+                                {/* Role Selection */}
+                                <div className="space-y-4">
+                                    <label className="text-sm font-semibold uppercase tracking-wider opacity-70">
+                                        Select Role
+                                    </label>
+                                    <div className="space-y-3">
+                                        {roles.map((role) => (
+                                            <button
+                                                key={role.id}
+                                                onClick={() => setSelectedRole(role.id)}
+                                                className={`w-full p-4 rounded-xl flex items-center gap-4 border transition-all duration-200 cursor-pointer ${selectedRole === role.id
+                                                        ? 'border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/50'
+                                                        : isDark
+                                                            ? 'border-slate-700/50 hover:bg-slate-800'
+                                                            : 'border-slate-200 hover:bg-slate-50'
+                                                    }`}
+                                            >
+                                                <div className={`p-2 rounded-lg ${isDark ? 'bg-slate-800' : 'bg-slate-100'} ${role.color}`}>
+                                                    <role.icon size={20} />
+                                                </div>
+                                                <span className={`font-medium ${selectedRole === role.id ? 'text-indigo-500' : ''}`}>
+                                                    {role.label}
+                                                </span>
+                                                {selectedRole === role.id && (
+                                                    <CheckCircle2 size={18} className="ml-auto text-indigo-500" />
+                                                )}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </Section>
 
-            {/* CTA / START INTERVIEW */}
-            <Section className="py-24 px-4" ref={configRef}>
-                <div className="max-w-3xl mx-auto">
-                    <div className={`p-8 md:p-12 rounded-3xl ${isDark
-                        ? 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-white/10'
-                        : 'bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100'
-                        }`}>
-                        <h2 className={`text-3xl md:text-4xl font-display font-bold mb-4 text-center ${isDark ? 'text-white' : 'text-slate-900'
-                            }`}>
-                            Ready to Practice?
-                        </h2>
-                        <p className={`text-center mb-8 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                            Configure your mock interview and start practicing now
-                        </p>
+                                {/* Level Selection */}
+                                <div className="space-y-8">
+                                    <div className="space-y-4">
+                                        <label className="text-sm font-semibold uppercase tracking-wider opacity-70">
+                                            Experience Level
+                                        </label>
+                                        <div className="space-y-3">
+                                            {levels.map((level) => (
+                                                <button
+                                                    key={level.id}
+                                                    onClick={() => setSelectedLevel(level.id)}
+                                                    className={`w-full p-4 rounded-xl text-left border transition-all duration-200 cursor-pointer ${selectedLevel === level.id
+                                                            ? 'border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/50'
+                                                            : isDark
+                                                                ? 'border-slate-700/50 hover:bg-slate-800'
+                                                                : 'border-slate-200 hover:bg-slate-50'
+                                                        }`}
+                                                >
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <span className={`font-medium ${selectedLevel === level.id ? 'text-indigo-500' : ''}`}>
+                                                            {level.label}
+                                                        </span>
+                                                        {selectedLevel === level.id && (
+                                                            <CheckCircle2 size={18} className="text-indigo-500" />
+                                                        )}
+                                                    </div>
+                                                    <div className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+                                                        {level.desc}
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
 
-                        {/* Role Selection */}
-                        <div className="mb-6">
-                            <label className={`block text-sm font-medium mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                Select Role
-                            </label>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                {roles.map((role) => (
-                                    <motion.button
-                                        key={role.id}
-                                        onClick={() => setSelectedRole(role.id)}
-                                        className={`p-4 rounded-xl flex flex-col items-center gap-2 ${selectedRole === role.id
-                                            ? 'bg-indigo-500 text-white shadow-lg'
-                                            : isDark
-                                                ? 'bg-white/5 text-slate-300 hover:bg-white/10'
-                                                : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                                            }`}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                    >
-                                        <role.icon size={24} />
-                                        <span className="text-sm font-medium">{role.label}</span>
-                                    </motion.button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Level Selection */}
-                        <div className="mb-8">
-                            <label className={`block text-sm font-medium mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                Experience Level
-                            </label>
-                            <div className="grid grid-cols-3 gap-3">
-                                {levels.map((level) => (
-                                    <motion.button
-                                        key={level.id}
-                                        onClick={() => setSelectedLevel(level.id)}
-                                        className={`p-4 rounded-xl text-center ${selectedLevel === level.id
-                                            ? 'bg-teal-500 text-white shadow-lg'
-                                            : isDark
-                                                ? 'bg-white/5 text-slate-300 hover:bg-white/10'
-                                                : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                                            }`}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                    >
-                                        <span className="font-semibold">{level.label}</span>
-                                    </motion.button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Difficulty & Timer Row */}
-                        <div className="grid grid-cols-2 gap-4 mb-8">
-                            {/* Difficulty */}
-                            <div>
-                                <label className={`block text-sm font-medium mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                    Difficulty
-                                </label>
-                                <div className="flex gap-2">
-                                    {difficulties.map((diff) => (
-                                        <motion.button
-                                            key={diff.id}
-                                            onClick={() => setSelectedDifficulty(diff.id)}
-                                            className={`flex-1 p-3 rounded-xl text-center text-sm ${selectedDifficulty === diff.id
-                                                ? diff.id === 'easy'
-                                                    ? 'bg-emerald-500 text-white'
-                                                    : diff.id === 'hard'
-                                                        ? 'bg-red-500 text-white'
-                                                        : 'bg-indigo-500 text-white'
-                                                : isDark
-                                                    ? 'bg-white/5 text-slate-300 hover:bg-white/10'
-                                                    : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                                    <div className="pt-4">
+                                        <button
+                                            onClick={handleStart}
+                                            disabled={!selectedRole || !selectedLevel}
+                                            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer ${selectedRole && selectedLevel
+                                                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105 active:scale-95'
+                                                    : 'bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed'
                                                 }`}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
                                         >
-                                            <span className="font-medium">{diff.label}</span>
-                                        </motion.button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Timer */}
-                            <div>
-                                <label className={`block text-sm font-medium mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                    Timer Mode
-                                </label>
-                                <div className="flex gap-2">
-                                    {timerModes.map((timer) => (
-                                        <motion.button
-                                            key={timer.id}
-                                            onClick={() => setSelectedTimer(timer.id)}
-                                            className={`flex-1 p-3 rounded-xl text-center text-sm ${selectedTimer === timer.id
-                                                ? 'bg-purple-500 text-white'
-                                                : isDark
-                                                    ? 'bg-white/5 text-slate-300 hover:bg-white/10'
-                                                    : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                                                }`}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                        >
-                                            <span className="font-medium">{timer.label}</span>
-                                        </motion.button>
-                                    ))}
+                                            Start Interview Session
+                                            <ChevronRight size={20} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Start Button */}
-                        <motion.button
-                            onClick={handleStart}
-                            disabled={!selectedRole || !selectedLevel}
-                            className={`w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 ${selectedRole && selectedLevel
-                                ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-2xl shadow-indigo-500/30'
-                                : isDark
-                                    ? 'bg-white/10 text-slate-500 cursor-not-allowed'
-                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                }`}
-                            whileHover={selectedRole && selectedLevel ? { scale: 1.02 } : {}}
-                            whileTap={selectedRole && selectedLevel ? { scale: 0.98 } : {}}
-                        >
-                            <Mic size={22} />
-                            Start Interview
-                            <ArrowRight size={22} />
-                        </motion.button>
-
-                        {(!selectedRole || !selectedLevel) && (
-                            <p className={`text-center mt-4 text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                                Select a role and experience level to continue
-                            </p>
-                        )}
-                    </div>
+                    </motion.div>
                 </div>
-            </Section>
+            </section>
         </div>
     );
 }

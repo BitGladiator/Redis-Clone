@@ -27,6 +27,7 @@
   --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-float: float 6s ease-in-out infinite;
+  --animate-gradient-x: gradient-x 15s ease infinite;
 
   @keyframes fadeIn {
     0% {
@@ -35,6 +36,17 @@
 
     100% {
       opacity: 1;
+    }
+  }
+
+  @keyframes gradient-x {
+    0%, 100% {
+      background-size: 200% 200%;
+      background-position: left center;
+    }
+    50% {
+      background-size: 200% 200%;
+      background-position: right center;
     }
   }
 

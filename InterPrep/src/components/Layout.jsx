@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Github, Sun, Moon, Menu, X, Home, Layers, Info, ChevronRight, Settings } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    Github, Sun, Moon, Menu, X, Settings, ChevronDown,
+    Code, BarChart3, Users, Crown, Zap, TrendingUp
+} from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { Logo } from './Logo';
 
@@ -7,6 +10,8 @@ export function Layout({ children, currentPage, onNavigate }) {
     const { theme, toggleTheme } = useTheme();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
     // Track scroll for navbar effect
     useEffect(() => {
@@ -19,6 +24,7 @@ export function Layout({ children, currentPage, onNavigate }) {
 
     useEffect(() => {
         setSidebarOpen(false);
+        setDropdownOpen(false);
     }, [currentPage]);
 
     useEffect(() => {
@@ -30,14 +36,36 @@ export function Layout({ children, currentPage, onNavigate }) {
         return () => { document.body.style.overflow = ''; };
     }, [sidebarOpen]);
 
-    const navItems = [
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Primary nav items (always visible)
+    const primaryNav = [
         { id: 'landing', label: 'Home' },
         { id: 'features', label: 'Features' },
         { id: 'history', label: 'Progress' },
-        { id: 'about', label: 'About' },
+    ];
+
+    // Dropdown items (under "More")
+    const moreItems = [
+        { id: 'simulations', label: 'Interview Simulations', icon: Zap, desc: 'Speed rounds & whiteboard' },
+        { id: 'code-editor', label: 'Code Lab', icon: Code, desc: 'Practice coding challenges' },
+        { id: 'analytics', label: 'Analytics', icon: BarChart3, desc: 'Performance insights' },
+        { id: 'social', label: 'Community', icon: Users, desc: 'Questions & leaderboard' },
+        { id: 'premium', label: 'Premium', icon: Crown, desc: 'FAANG prep & recordings' },
     ];
 
     const isDark = theme === 'dark';
+
+    const isMoreActive = moreItems.some(item => item.id === currentPage);
 
     return (
         <div className={`min-h-screen flex flex-col font-sans relative ${isDark ? 'bg-[#030712] text-slate-50' : 'bg-white text-slate-900'
@@ -48,12 +76,10 @@ export function Layout({ children, currentPage, onNavigate }) {
                     <>
                         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-indigo-500/8 blur-[120px]" />
                         <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-purple-500/8 blur-[120px]" />
-                        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-teal-500/8 blur-[120px]" />
                     </>
                 ) : (
                     <>
                         <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-indigo-100/50 blur-[100px]" />
-                        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-purple-100/50 blur-[100px]" />
                     </>
                 )}
             </div>
@@ -78,141 +104,161 @@ export function Layout({ children, currentPage, onNavigate }) {
                     </div>
                 </div>
 
-                <nav className="p-4">
-                    {navItems.map((item) => (
+                <nav className="p-4 space-y-1">
+                    {/* Primary Nav */}
+                    {primaryNav.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => onNavigate(item.id)}
-                            className={`w-full text-left px-4 py-3 rounded-xl mb-1 font-medium transition-all ${currentPage === item.id
-                                ? isDark ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
-                                : isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                            className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all ${currentPage === item.id
+                                    ? isDark ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
+                                    : isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                                 }`}
                         >
                             {item.label}
                         </button>
                     ))}
-                </nav>
 
-                <div className={`absolute bottom-0 left-0 right-0 p-4 border-t ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                    <button
-                        onClick={toggleTheme}
-                        className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl mb-3 ${isDark ? 'bg-white/5 text-slate-300' : 'bg-slate-100 text-slate-700'
-                            }`}
-                    >
-                        {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                        {isDark ? 'Light Mode' : 'Dark Mode'}
-                    </button>
-                </div>
+                    {/* Divider */}
+                    <div className={`my-3 border-t ${isDark ? 'border-white/10' : 'border-slate-100'}`} />
+                    <p className={`px-4 py-2 text-xs font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                        Tools
+                    </p>
+
+                    {/* More Items */}
+                    {moreItems.map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => onNavigate(item.id)}
+                            className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all flex items-center gap-3 ${currentPage === item.id
+                                    ? isDark ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
+                                    : isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                }`}
+                        >
+                            <item.icon size={18} />
+                            {item.label}
+                        </button>
+                    ))}
+                </nav>
             </div>
 
-            {/* PREMIUM NAVBAR */}
+            {/* NAVBAR */}
             <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
-                ? isDark
-                    ? 'bg-[#030712]/80 backdrop-blur-xl border-b border-white/5 shadow-lg shadow-black/10'
-                    : 'bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-lg shadow-slate-200/20'
-                : 'bg-transparent'
+                    ? isDark
+                        ? 'bg-[#030712]/80 backdrop-blur-xl border-b border-white/5'
+                        : 'bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm'
+                    : 'bg-transparent'
                 }`}>
                 <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center justify-between h-20 px-6">
+                    <div className="flex items-center justify-between h-16 px-4 lg:px-6">
                         {/* Logo */}
-                        <button onClick={() => onNavigate('landing')} className="flex items-center gap-3 group">
-                            <div className="relative">
-                                <div className={`absolute -inset-2 rounded-xl blur-lg transition-opacity duration-500 ${isDark ? 'bg-indigo-500/20' : 'bg-indigo-400/20'
-                                    } opacity-0 group-hover:opacity-100`} />
-                                <Logo className="relative w-10 h-10" isDark={isDark} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className={`text-xl font-bold font-display tracking-tight ${isDark ? 'text-white' : 'text-slate-900'
-                                    }`}>
-                                    InterPrep
-                                </span>
-                                <span className={`text-[10px] font-medium tracking-widest uppercase ${isDark ? 'text-indigo-400' : 'text-indigo-600'
-                                    }`}>
-                                    AI Interview Coach
-                                </span>
-                            </div>
+                        <button onClick={() => onNavigate('landing')} className="flex items-center gap-2.5 group">
+                            <Logo className="w-9 h-9" isDark={isDark} />
+                            <span className={`text-lg font-bold font-display hidden sm:block ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                InterPrep
+                            </span>
                         </button>
 
                         {/* Desktop Navigation */}
-                        <nav className="hidden md:flex items-center">
-                            {/* Nav Links */}
-                            <div className={`flex items-center gap-1 p-1.5 rounded-full mr-4 ${isDark ? 'bg-white/5' : 'bg-slate-100'
-                                }`}>
-                                {navItems.map((item) => (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => onNavigate(item.id)}
-                                        className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${currentPage === item.id
-                                            ? isDark
-                                                ? 'bg-white text-slate-900 shadow-lg'
-                                                : 'bg-white text-slate-900 shadow-md'
-                                            : isDark
-                                                ? 'text-slate-400 hover:text-white'
-                                                : 'text-slate-600 hover:text-slate-900'
-                                            }`}
-                                    >
-                                        {item.label}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Right side actions */}
-                            <div className="flex items-center gap-2">
+                        <nav className="hidden md:flex items-center gap-1">
+                            {/* Primary Nav */}
+                            {primaryNav.map((item) => (
                                 <button
-                                    onClick={toggleTheme}
-                                    className={`p-2.5 rounded-full transition-all duration-300 ${isDark
-                                        ? 'text-slate-400 hover:text-white hover:bg-white/10'
-                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                    key={item.id}
+                                    onClick={() => onNavigate(item.id)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${currentPage === item.id
+                                            ? isDark ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-900'
+                                            : isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                                         }`}
                                 >
-                                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                                    {item.label}
+                                </button>
+                            ))}
+
+                            {/* More Dropdown */}
+                            <div className="relative" ref={dropdownRef}>
+                                <button
+                                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                                    className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isMoreActive || dropdownOpen
+                                            ? isDark ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-900'
+                                            : isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                        }`}
+                                >
+                                    More
+                                    <ChevronDown size={16} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
 
-                                <button
-                                    onClick={() => onNavigate('settings')}
-                                    className={`p-2.5 rounded-full transition-all duration-300 ${isDark
-                                        ? 'text-slate-400 hover:text-white hover:bg-white/10'
-                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-                                        }`}
-                                >
-                                    <Settings size={18} />
-                                </button>
-
-                                <a
-                                    href="https://github.com"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`p-2.5 rounded-full transition-all duration-300 ${isDark
-                                        ? 'text-slate-400 hover:text-white hover:bg-white/10'
-                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-                                        }`}
-                                >
-                                    <Github size={18} />
-                                </a>
-
-                                <button
-                                    onClick={() => onNavigate('landing')}
-                                    className={`ml-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${isDark
-                                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105'
-                                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-indigo-500/25 hover:scale-105'
-                                        }`}
-                                >
-                                    Get Started
-                                </button>
+                                {/* Dropdown Menu */}
+                                {dropdownOpen && (
+                                    <div className={`absolute top-full right-0 mt-2 w-72 rounded-xl overflow-hidden shadow-xl ${isDark
+                                            ? 'bg-slate-900 border border-white/10'
+                                            : 'bg-white border border-slate-200'
+                                        }`}>
+                                        {moreItems.map((item, idx) => (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => {
+                                                    onNavigate(item.id);
+                                                    setDropdownOpen(false);
+                                                }}
+                                                className={`w-full flex items-start gap-3 p-3 text-left transition-all ${currentPage === item.id
+                                                        ? isDark ? 'bg-indigo-500/10' : 'bg-indigo-50'
+                                                        : isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'
+                                                    } ${idx !== moreItems.length - 1 ? (isDark ? 'border-b border-white/5' : 'border-b border-slate-100') : ''}`}
+                                            >
+                                                <div className={`p-2 rounded-lg ${currentPage === item.id
+                                                        ? 'bg-indigo-500 text-white'
+                                                        : isDark ? 'bg-white/10 text-slate-400' : 'bg-slate-100 text-slate-600'
+                                                    }`}>
+                                                    <item.icon size={18} />
+                                                </div>
+                                                <div>
+                                                    <div className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                                        {item.label}
+                                                    </div>
+                                                    <div className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                                        {item.desc}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </nav>
 
-                        {/* Mobile menu button */}
-                        <div className="flex md:hidden items-center gap-2">
+                        {/* Right Actions */}
+                        <div className="flex items-center gap-2">
                             <button
                                 onClick={toggleTheme}
-                                className={`p-2 rounded-full ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                                className={`p-2 rounded-lg transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                    }`}
                             >
-                                {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                                {isDark ? <Sun size={18} /> : <Moon size={18} />}
                             </button>
+
+                            <button
+                                onClick={() => onNavigate('settings')}
+                                className={`p-2 rounded-lg transition-all hidden sm:block ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                    }`}
+                            >
+                                <Settings size={18} />
+                            </button>
+
+                            <button
+                                onClick={() => onNavigate('landing')}
+                                className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${isDark
+                                        ? 'bg-white text-slate-900 hover:bg-slate-100'
+                                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                    }`}
+                            >
+                                Start Practice
+                            </button>
+
+                            {/* Mobile menu button */}
                             <button
                                 onClick={() => setSidebarOpen(true)}
-                                className={`p-2 rounded-full ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                                className={`p-2 rounded-lg md:hidden ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
                             >
                                 <Menu size={24} />
                             </button>
@@ -232,11 +278,13 @@ export function Layout({ children, currentPage, onNavigate }) {
             <footer className={`relative z-10 py-8 mt-12 border-t ${isDark ? 'border-white/5 text-slate-500' : 'border-slate-200 text-slate-400'
                 }`}>
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-sm">© 2024 InterPrep. Built with AI for your success.</p>
+                    <p className="text-sm">© 2024 InterPrep. AI-powered interview practice.</p>
                     <div className="flex items-center gap-6 text-sm">
+                        <button onClick={() => onNavigate('about')} className="hover:text-indigo-500 transition-colors">About</button>
                         <a href="#" className="hover:text-indigo-500 transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-indigo-500 transition-colors">Terms</a>
-                        <a href="#" className="hover:text-indigo-500 transition-colors">Contact</a>
+                        <a href="https://github.com" target="_blank" className="hover:text-indigo-500 transition-colors">
+                            <Github size={18} />
+                        </a>
                     </div>
                 </div>
             </footer>

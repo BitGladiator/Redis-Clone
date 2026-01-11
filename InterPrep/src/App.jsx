@@ -9,6 +9,11 @@ import { History } from './components/History';
 import { Onboarding } from './components/Onboarding';
 import { InterviewSession } from './components/InterviewSession';
 import { Report } from './components/Report';
+import { CodeEditor } from './components/CodeEditor';
+import { Analytics } from './components/Analytics';
+import { PremiumContent } from './components/PremiumContent';
+import { Social } from './components/Social';
+import { SimulationModes } from './components/SimulationModes';
 import { isOnboardingComplete, saveSession } from './lib/storage';
 
 function App() {
@@ -78,8 +83,8 @@ function App() {
 
             <Layout currentPage={view} onNavigate={navigate}>
                 {view === 'landing' && <Landing onStart={handleStart} />}
-                {view === 'features' && <Features onBack={() => setView('landing')} />}
-                {view === 'about' && <About onBack={() => setView('landing')} />}
+                {view === 'features' && <Features />}
+                {view === 'about' && <About />}
                 {view === 'settings' && <Settings onBack={() => setView('landing')} />}
                 {view === 'history' && (
                     <History
@@ -89,6 +94,18 @@ function App() {
                 )}
                 {view === 'interview' && <InterviewSession config={config} onEnd={handleEnd} />}
                 {view === 'report' && <Report results={results} config={config} onRestart={handleRestart} />}
+
+                {/* New Advanced Features */}
+                {view === 'code-editor' && <CodeEditor onBack={() => setView('landing')} />}
+                {view === 'analytics' && <Analytics onBack={() => setView('landing')} />}
+                {view === 'premium' && <PremiumContent onBack={() => setView('landing')} />}
+                {view === 'social' && <Social onBack={() => setView('landing')} />}
+                {view === 'simulations' && (
+                    <SimulationModes
+                        onBack={() => setView('landing')}
+                        onStart={handleStart}
+                    />
+                )}
             </Layout>
         </ThemeProvider>
     );
