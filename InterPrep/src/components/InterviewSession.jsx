@@ -30,13 +30,26 @@ export function InterviewSession({ config, onEnd }) {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
-    const { isListening, isSpeaking, speak, startListening, stopListening, stopSpeaking, lastUserMessage } = useVoice();
+    const {
+        isListening,
+        isSpeaking,
+        speak,
+        startListening,
+        stopListening,
+        stopSpeaking,
+        transcript,
+        finalTranscript,
+        getCurrentTranscript,
+        clearTranscript
+    } = useVoice();
+
     const [messages, setMessages] = useState([]);
     const [questions, setQuestions] = useState([]);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [timer, setTimer] = useState(0);
     const [interviewState, setInterviewState] = useState('intro');
     const messagesEndRef = useRef(null);
+    const processingTimeoutRef = useRef(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -64,7 +77,12 @@ export function InterviewSession({ config, onEnd }) {
 
     useEffect(() => {
         const interval = setInterval(() => setTimer(t => t + 1), 1000);
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            if (processingTimeoutRef.current) {
+                clearTimeout(processingTimeoutRef.current);
+            }
+        };
     }, []);
 
     const formatTime = (seconds) => {
@@ -82,46 +100,129 @@ export function InterviewSession({ config, onEnd }) {
     const handleMicToggle = () => {
         if (isListening) {
             stopListening();
-            handleUserResponse();
+            setInterviewState('processing');
+
+            // Wait a bit for final transcript to be captured
+            setTimeout(() => {
+                handleUserResponse();
+            }, 500);
         } else {
-            startListening();
-            setInterviewState('listening');
+            // Stop AI speech before starting to listen
+            stopSpeaking();
+            clearTranscript();
+
+            // Small delay to ensure speech has stopped
+            setTimeout(() => {
+                startListening();
+                setInterviewState('listening');
+            }, 150);
         }
     };
 
     const analyzeResponse = (text) => {
-        const words = text.toLowerCase().split(' ');
-        const technicalTerms = ['api', 'component', 'function', 'database', 'server', 'react', 'node', 'javascript', 'python', 'algorithm'];
-        const hasTechnical = words.some(w => technicalTerms.includes(w));
+        if (!text || text.trim().length === 0) {
+            return "I didn't catch that. Could you please speak louder or try again? ";
+        }
 
-        if (text.length < 20) return "I'd appreciate more detail in your answer. ";
-        if (hasTechnical) return "Good technical terminology. ";
-        return "Thank you for that response. ";
+        const words = text.toLowerCase().split(/\s+/);
+        const wordCount = words.length;
+        const charCount = text.trim().length;
+
+        // Check for technical terms
+        const technicalTerms = [
+            'api', 'component', 'function', 'database', 'server', 'react', 'node',
+            'javascript', 'python', 'algorithm', 'async', 'await', 'promise', 'closure',
+            'prototype', 'inheritance', 'framework', 'library', 'rest', 'graphql',
+            'authentication', 'authorization', 'optimization', 'performance', 'scalability',
+            'microservices', 'cache', 'redux', 'state', 'props', 'hooks', 'lifecycle'
+        ];
+        const technicalCount = words.filter(w => technicalTerms.includes(w)).length;
+
+        // Check for structure indicators
+        const hasExample = /example|for instance|such as|like when/i.test(text);
+        const hasExplanation = /because|since|therefore|thus|so that/i.test(text);
+        const hasMultiplePoints = text.includes('first') || text.includes('second') ||
+            text.includes('also') || text.includes('additionally');
+
+        let feedback = [];
+
+        // Length analysis
+        if (charCount < 30) {
+            feedback.push("That's quite brief. I'd love to hear more detail about your thought process");
+        } else if (charCount < 100) {
+            feedback.push("Good start");
+        } else if (charCount < 300) {
+            feedback.push("Great detailed response");
+        } else {
+            feedback.push("Excellent comprehensive answer");
+        }
+
+        // Technical depth
+        if (technicalCount >= 3) {
+            feedback.push("I appreciate the technical terminology you used");
+        } else if (technicalCount > 0) {
+            feedback.push("good technical awareness");
+        }
+
+        // Structure analysis
+        if (hasExample) {
+            feedback.push("providing examples really strengthens your answer");
+        }
+        if (hasExplanation) {
+            feedback.push("your reasoning is clear");
+        }
+        if (hasMultiplePoints) {
+            feedback.push("nice structured approach");
+        }
+
+        // Suggestions for improvement
+        const suggestions = [];
+        if (!hasExample && charCount > 50) {
+            suggestions.push("consider adding a concrete example");
+        }
+        if (technicalCount === 0 && wordCount > 10) {
+            suggestions.push("try to incorporate more technical terminology");
+        }
+
+        let result = feedback.join(", ") + ". ";
+        if (suggestions.length > 0) {
+            result += "For next time, " + suggestions.join(" and ") + ". ";
+        }
+
+        return result;
     };
 
     const handleUserResponse = () => {
-        setInterviewState('processing');
-        const userText = lastUserMessage || "(No input detected)";
-        setMessages(prev => [...prev, { role: 'user', text: userText }]);
+        // Get the current transcript
+        const userText = getCurrentTranscript();
 
-        setTimeout(() => {
+        console.log('Processing user response:', userText);
+
+        if (!userText || userText.trim().length === 0) {
+            setMessages(prev => [...prev, { role: 'user', text: '(No speech detected)' }]);
+        } else {
+            setMessages(prev => [...prev, { role: 'user', text: userText }]);
+        }
+
+        // Process after a short delay to show the processing state
+        processingTimeoutRef.current = setTimeout(() => {
             const nextIdx = currentIdx + 1;
             const feedback = analyzeResponse(userText);
 
             if (nextIdx < questions.length) {
                 setCurrentIdx(nextIdx);
-                const text = `${feedback} Next question: ${questions[nextIdx]}`;
+                const text = `${feedback} Let's move on. ${questions[nextIdx]}`;
                 setMessages(prev => [...prev, { role: 'ai', text }]);
                 speak(text);
                 setInterviewState('asking');
             } else {
-                const closing = `${feedback} Thank you, that concludes our interview. Generating your report now.`;
+                const closing = `${feedback} That wraps up our interview. You did well! I'm now generating your detailed performance report.`;
                 setMessages(prev => [...prev, { role: 'ai', text: closing }]);
                 speak(closing);
                 setInterviewState('done');
-                setTimeout(() => handleEnd(), 5000);
+                setTimeout(() => handleEnd(), 6000);
             }
-        }, 2000);
+        }, 1500);
     };
 
     return (
@@ -153,8 +254,8 @@ export function InterviewSession({ config, onEnd }) {
                     <motion.button
                         onClick={handleEnd}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${isDark
-                                ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                                : 'bg-red-50 text-red-600 hover:bg-red-100'
+                            ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                            : 'bg-red-50 text-red-600 hover:bg-red-100'
                             }`}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -171,8 +272,8 @@ export function InterviewSession({ config, onEnd }) {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className={`lg:col-span-3 rounded-3xl p-8 relative overflow-hidden ${isDark
-                            ? 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-white/10'
-                            : 'bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100'
+                        ? 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-white/10'
+                        : 'bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100'
                         }`}
                 >
                     {/* Decorative elements */}
@@ -185,14 +286,14 @@ export function InterviewSession({ config, onEnd }) {
                         {/* Status Badge */}
                         <div className="flex justify-center mb-6">
                             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${interviewState === 'listening'
-                                    ? isDark ? 'bg-teal-500/20 text-teal-400' : 'bg-teal-100 text-teal-700'
-                                    : interviewState === 'processing'
-                                        ? isDark ? 'bg-yellow-500/20 text-yellow-400' : 'bg-yellow-100 text-yellow-700'
-                                        : isDark ? 'bg-indigo-500/20 text-indigo-400' : 'bg-indigo-100 text-indigo-700'
+                                ? isDark ? 'bg-teal-500/20 text-teal-400' : 'bg-teal-100 text-teal-700'
+                                : interviewState === 'processing'
+                                    ? isDark ? 'bg-yellow-500/20 text-yellow-400' : 'bg-yellow-100 text-yellow-700'
+                                    : isDark ? 'bg-indigo-500/20 text-indigo-400' : 'bg-indigo-100 text-indigo-700'
                                 }`}>
                                 <span className={`w-2 h-2 rounded-full animate-pulse ${interviewState === 'listening' ? 'bg-teal-500'
-                                        : interviewState === 'processing' ? 'bg-yellow-500'
-                                            : 'bg-indigo-500'
+                                    : interviewState === 'processing' ? 'bg-yellow-500'
+                                        : 'bg-indigo-500'
                                     }`} />
                                 {interviewState === 'listening' ? 'Listening...'
                                     : interviewState === 'processing' ? 'Processing...'
@@ -238,10 +339,10 @@ export function InterviewSession({ config, onEnd }) {
                                     onClick={handleMicToggle}
                                     disabled={isSpeaking || interviewState === 'processing'}
                                     className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all ${isListening
-                                            ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/30'
-                                            : isDark
-                                                ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30'
-                                                : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                                        ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/30'
+                                        : isDark
+                                            ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30'
+                                            : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
                                         } ${(isSpeaking || interviewState === 'processing') ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -260,7 +361,7 @@ export function InterviewSession({ config, onEnd }) {
 
                             {/* Live transcription */}
                             <AnimatePresence>
-                                {lastUserMessage && interviewState === 'listening' && (
+                                {transcript && isListening && (
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -269,7 +370,7 @@ export function InterviewSession({ config, onEnd }) {
                                             }`}
                                     >
                                         <p className={`italic ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                                            "{lastUserMessage}"
+                                            "{transcript}"
                                         </p>
                                     </motion.div>
                                 )}
@@ -309,12 +410,12 @@ export function InterviewSession({ config, onEnd }) {
                                 className={`flex ${msg.role === 'ai' ? 'justify-start' : 'justify-end'}`}
                             >
                                 <div className={`max-w-[85%] p-4 rounded-2xl ${msg.role === 'ai'
-                                        ? isDark
-                                            ? 'bg-indigo-500/20 text-slate-200'
-                                            : 'bg-indigo-50 text-slate-800'
-                                        : isDark
-                                            ? 'bg-teal-500/20 text-slate-200'
-                                            : 'bg-teal-50 text-slate-800'
+                                    ? isDark
+                                        ? 'bg-indigo-500/20 text-slate-200'
+                                        : 'bg-indigo-50 text-slate-800'
+                                    : isDark
+                                        ? 'bg-teal-500/20 text-slate-200'
+                                        : 'bg-teal-50 text-slate-800'
                                     }`}>
                                     <p className="text-xs font-medium mb-1 opacity-60">
                                         {msg.role === 'ai' ? 'AI Interviewer' : 'You'}

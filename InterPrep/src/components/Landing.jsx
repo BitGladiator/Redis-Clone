@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     Mic, Brain, Target, ChevronRight,
     Users, Play, ArrowRight, BarChart3, Sparkles,
-    CheckCircle2, Terminal, Cpu, Globe
+    CheckCircle2, Terminal, Cpu, Globe, Heart, Zap, Flame
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
@@ -13,8 +13,8 @@ const Background = ({ isDark }) => {
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Base Gradient */}
             <div className={`absolute inset-0 transition-colors duration-700 ${isDark
-                    ? 'bg-slate-950'
-                    : 'bg-slate-50'
+                ? 'bg-slate-950'
+                : 'bg-slate-50'
                 }`} />
 
             {/* Animated Blobs */}
@@ -130,16 +130,23 @@ const levels = [
     { id: 'senior', label: 'Senior (5+ YOE)', desc: 'Leadership & scale' },
 ];
 
+const difficulties = [
+    { id: 'easy', label: 'Easy', icon: Heart, desc: 'Gentle warm-up questions', color: 'text-green-500', bgColor: 'bg-green-500' },
+    { id: 'medium', label: 'Medium', icon: Zap, desc: 'Standard interview level', color: 'text-yellow-500', bgColor: 'bg-yellow-500' },
+    { id: 'hard', label: 'Hard', icon: Flame, desc: 'Challenging deep-dive', color: 'text-red-500', bgColor: 'bg-red-500' },
+];
+
 export function Landing({ onStart }) {
     const { theme } = useTheme();
     const [selectedRole, setSelectedRole] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('');
+    const [selectedDifficulty, setSelectedDifficulty] = useState('');
     const configRef = useRef(null);
     const isDark = theme === 'dark';
 
     const handleStart = () => {
-        if (selectedRole && selectedLevel) {
-            onStart({ role: selectedRole, level: selectedLevel, difficulty: 'medium', timer: 'untimed' });
+        if (selectedRole && selectedLevel && selectedDifficulty) {
+            onStart({ role: selectedRole, level: selectedLevel, difficulty: selectedDifficulty, timer: 'untimed' });
         }
     };
 
@@ -159,8 +166,8 @@ export function Landing({ onStart }) {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium mb-8 border backdrop-blur-md shadow-sm ${isDark
-                                ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'
-                                : 'bg-white/80 text-indigo-600 border-indigo-100'
+                            ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'
+                            : 'bg-white/80 text-indigo-600 border-indigo-100'
                             }`}
                     >
                         <span className="relative flex h-2 w-2">
@@ -210,8 +217,8 @@ export function Landing({ onStart }) {
                         </button>
 
                         <button className={`px-8 py-4 rounded-2xl font-semibold text-lg border transition-all hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer ${isDark
-                                ? 'border-slate-700 hover:bg-slate-800 text-slate-300'
-                                : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                            ? 'border-slate-700 hover:bg-slate-800 text-slate-300'
+                            : 'border-slate-200 hover:bg-slate-50 text-slate-600'
                             }`}>
                             <Play size={20} className="fill-current" />
                             Watch Demo
@@ -265,8 +272,8 @@ export function Landing({ onStart }) {
                                 viewport={{ once: true }}
                                 transition={{ delay: idx * 0.1 }}
                                 className={`group p-8 rounded-3xl border transition-all duration-300 hover:shadow-2xl ${isDark
-                                        ? 'bg-slate-800/20 border-slate-700/50 hover:border-indigo-500/30 hover:bg-slate-800/40'
-                                        : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50 hover:border-indigo-100'
+                                    ? 'bg-slate-800/20 border-slate-700/50 hover:border-indigo-500/30 hover:bg-slate-800/40'
+                                    : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50 hover:border-indigo-100'
                                     }`}
                             >
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br ${feature.color} text-white shadow-lg`}>
@@ -286,14 +293,14 @@ export function Landing({ onStart }) {
 
             {/* CONFIGURATION SECTION */}
             <section ref={configRef} className="py-32 px-6 relative">
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-6xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         className={`rounded-[2.5rem] p-8 md:p-12 border shadow-2xl relative overflow-hidden ${isDark
-                                ? 'bg-slate-900/80 border-slate-700/50 backdrop-blur-xl'
-                                : 'bg-white border-slate-200 shadow-slate-200/50'
+                            ? 'bg-slate-900/80 border-slate-700/50 backdrop-blur-xl'
+                            : 'bg-white border-slate-200 shadow-slate-200/50'
                             }`}
                     >
                         {/* Background glow in card */}
@@ -308,7 +315,7 @@ export function Landing({ onStart }) {
                                 Customize your interview session below
                             </p>
 
-                            <div className="grid md:grid-cols-2 gap-12">
+                            <div className="grid md:grid-cols-3 gap-8">
                                 {/* Role Selection */}
                                 <div className="space-y-4">
                                     <label className="text-sm font-semibold uppercase tracking-wider opacity-70">
@@ -320,16 +327,16 @@ export function Landing({ onStart }) {
                                                 key={role.id}
                                                 onClick={() => setSelectedRole(role.id)}
                                                 className={`w-full p-4 rounded-xl flex items-center gap-4 border transition-all duration-200 cursor-pointer ${selectedRole === role.id
-                                                        ? 'border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/50'
-                                                        : isDark
-                                                            ? 'border-slate-700/50 hover:bg-slate-800'
-                                                            : 'border-slate-200 hover:bg-slate-50'
+                                                    ? 'border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/50'
+                                                    : isDark
+                                                        ? 'border-slate-700/50 hover:bg-slate-800'
+                                                        : 'border-slate-200 hover:bg-slate-50'
                                                     }`}
                                             >
                                                 <div className={`p-2 rounded-lg ${isDark ? 'bg-slate-800' : 'bg-slate-100'} ${role.color}`}>
                                                     <role.icon size={20} />
                                                 </div>
-                                                <span className={`font-medium ${selectedRole === role.id ? 'text-indigo-500' : ''}`}>
+                                                <span className={`font-medium text-sm ${selectedRole === role.id ? 'text-indigo-500' : ''}`}>
                                                     {role.label}
                                                 </span>
                                                 {selectedRole === role.id && (
@@ -341,53 +348,88 @@ export function Landing({ onStart }) {
                                 </div>
 
                                 {/* Level Selection */}
-                                <div className="space-y-8">
-                                    <div className="space-y-4">
-                                        <label className="text-sm font-semibold uppercase tracking-wider opacity-70">
-                                            Experience Level
-                                        </label>
-                                        <div className="space-y-3">
-                                            {levels.map((level) => (
-                                                <button
-                                                    key={level.id}
-                                                    onClick={() => setSelectedLevel(level.id)}
-                                                    className={`w-full p-4 rounded-xl text-left border transition-all duration-200 cursor-pointer ${selectedLevel === level.id
-                                                            ? 'border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/50'
-                                                            : isDark
-                                                                ? 'border-slate-700/50 hover:bg-slate-800'
-                                                                : 'border-slate-200 hover:bg-slate-50'
-                                                        }`}
-                                                >
-                                                    <div className="flex justify-between items-center mb-1">
-                                                        <span className={`font-medium ${selectedLevel === level.id ? 'text-indigo-500' : ''}`}>
-                                                            {level.label}
-                                                        </span>
-                                                        {selectedLevel === level.id && (
-                                                            <CheckCircle2 size={18} className="text-indigo-500" />
-                                                        )}
-                                                    </div>
-                                                    <div className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-                                                        {level.desc}
-                                                    </div>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-4">
-                                        <button
-                                            onClick={handleStart}
-                                            disabled={!selectedRole || !selectedLevel}
-                                            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer ${selectedRole && selectedLevel
-                                                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105 active:scale-95'
-                                                    : 'bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed'
-                                                }`}
-                                        >
-                                            Start Interview Session
-                                            <ChevronRight size={20} />
-                                        </button>
+                                <div className="space-y-4">
+                                    <label className="text-sm font-semibold uppercase tracking-wider opacity-70">
+                                        Experience Level
+                                    </label>
+                                    <div className="space-y-3">
+                                        {levels.map((level) => (
+                                            <button
+                                                key={level.id}
+                                                onClick={() => setSelectedLevel(level.id)}
+                                                className={`w-full p-4 rounded-xl text-left border transition-all duration-200 cursor-pointer ${selectedLevel === level.id
+                                                    ? 'border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/50'
+                                                    : isDark
+                                                        ? 'border-slate-700/50 hover:bg-slate-800'
+                                                        : 'border-slate-200 hover:bg-slate-50'
+                                                    }`}
+                                            >
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <span className={`font-medium text-sm ${selectedLevel === level.id ? 'text-indigo-500' : ''}`}>
+                                                        {level.label}
+                                                    </span>
+                                                    {selectedLevel === level.id && (
+                                                        <CheckCircle2 size={18} className="text-indigo-500" />
+                                                    )}
+                                                </div>
+                                                <div className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+                                                    {level.desc}
+                                                </div>
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
+
+                                {/* Difficulty Selection */}
+                                <div className="space-y-4">
+                                    <label className="text-sm font-semibold uppercase tracking-wider opacity-70">
+                                        Difficulty
+                                    </label>
+                                    <div className="space-y-3">
+                                        {difficulties.map((difficulty) => (
+                                            <button
+                                                key={difficulty.id}
+                                                onClick={() => setSelectedDifficulty(difficulty.id)}
+                                                className={`w-full p-4 rounded-xl text-left border transition-all duration-200 cursor-pointer ${selectedDifficulty === difficulty.id
+                                                    ? 'border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/50'
+                                                    : isDark
+                                                        ? 'border-slate-700/50 hover:bg-slate-800'
+                                                        : 'border-slate-200 hover:bg-slate-50'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-3 mb-1">
+                                                    <div className={`p-1.5 rounded-lg ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                                                        <difficulty.icon size={16} className={difficulty.color} />
+                                                    </div>
+                                                    <span className={`font-medium text-sm ${selectedDifficulty === difficulty.id ? 'text-indigo-500' : ''}`}>
+                                                        {difficulty.label}
+                                                    </span>
+                                                    {selectedDifficulty === difficulty.id && (
+                                                        <CheckCircle2 size={18} className="ml-auto text-indigo-500" />
+                                                    )}
+                                                </div>
+                                                <div className={`text-xs ml-9 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+                                                    {difficulty.desc}
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Start Button */}
+                            <div className="pt-8 mt-8 border-t border-slate-700/50">
+                                <button
+                                    onClick={handleStart}
+                                    disabled={!selectedRole || !selectedLevel || !selectedDifficulty}
+                                    className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer ${selectedRole && selectedLevel && selectedDifficulty
+                                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105 active:scale-95'
+                                        : 'bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed'
+                                        }`}
+                                >
+                                    Start Interview Session
+                                    <ChevronRight size={20} />
+                                </button>
                             </div>
                         </div>
                     </motion.div>

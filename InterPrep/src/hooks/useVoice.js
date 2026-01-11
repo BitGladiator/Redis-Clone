@@ -4,10 +4,12 @@ export function useVoice() {
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [transcript, setTranscript] = useState('');
-    const [lastUserMessage, setLastUserMessage] = useState('');
+    const [interimTranscript, setInterimTranscript] = useState('');
+    const [finalTranscript, setFinalTranscript] = useState('');
 
     const recognitionRef = useRef(null);
     const synthRef = useRef(window.speechSynthesis);
+    const finalTranscriptRef = useRef('');
 
     useEffect(() => {
         // Initialize Speech Recognition ONCE
@@ -18,46 +20,65 @@ export function useVoice() {
                 recognition.continuous = true;
                 recognition.interimResults = true;
                 recognition.lang = 'en-US';
+                recognition.maxAlternatives = 1;
 
                 recognition.onresult = (event) => {
-                    let interimTranscript = '';
-                    let finalTranscript = '';
+                    let interim = '';
+                    let final = '';
 
                     for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        const transcript = event.results[i][0].transcript;
                         if (event.results[i].isFinal) {
-                            finalTranscript += event.results[i][0].transcript;
-                            setLastUserMessage(event.results[i][0].transcript);
+                            final += transcript + ' ';
                         } else {
-                            interimTranscript += event.results[i][0].transcript;
+                            interim += transcript;
                         }
                     }
-                    setTranscript(interimTranscript || finalTranscript);
+
+                    if (final) {
+                        // Accumulate final transcripts
+                        finalTranscriptRef.current += final;
+                        setFinalTranscript(finalTranscriptRef.current.trim());
+                        setTranscript(finalTranscriptRef.current.trim());
+                    }
+
+                    if (interim) {
+                        setInterimTranscript(interim);
+                        // Show combined final + interim
+                        setTranscript((finalTranscriptRef.current + ' ' + interim).trim());
+                    }
                 };
 
                 recognition.onend = () => {
-                    // We check the Ref's current intention, not just the local variable
-                    // But here we rely on the state updater if needed, or better, 
-                    // we expect 'stopListening' to have been called if we wanted to stop.
-                    // However, 'onend' fires even if silence or error.
-                    // We simply reflect the state. If we thought we were listening, try to restart.
-                    // CAUTION: accessing state in event listener might be stale.
-                    // But we won't auto-restart here aggressively to avoid loops.
-                    // We'll let the user toggle if it stops.
+                    console.log('Speech recognition ended');
                     setIsListening(false);
                 };
 
                 recognition.onerror = (event) => {
-                    console.error('Speech recognition error', event.error);
+                    console.error('Speech recognition error:', event.error);
+                    if (event.error === 'no-speech') {
+                        console.log('No speech detected, stopping...');
+                    }
                     setIsListening(false);
                 };
 
+                recognition.onstart = () => {
+                    console.log('Speech recognition started');
+                };
+
                 recognitionRef.current = recognition;
+            } else {
+                console.warn('Speech Recognition not supported in this browser');
             }
         }
 
         return () => {
             if (recognitionRef.current) {
-                try { recognitionRef.current.stop(); } catch (e) { }
+                try {
+                    recognitionRef.current.stop();
+                } catch (e) {
+                    console.error('Error stopping recognition:', e);
+                }
             }
         };
     }, []);
@@ -65,45 +86,85 @@ export function useVoice() {
     const speak = useCallback((text) => {
         if (!synthRef.current) return;
 
-        // Stop any ongoing speech
+        // Stop any ongoing speech and wait for it to fully stop
         synthRef.current.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.onstart = () => setIsSpeaking(true);
-        utterance.onend = () => setIsSpeaking(false);
-        utterance.onerror = () => setIsSpeaking(false);
+        // Small delay to ensure speech synthesis is fully reset
+        setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(text);
 
-        // Find a decent voice
-        const voices = synthRef.current.getVoices();
-        const preferredVoice = voices.find(v => v.name.includes('Google US English') || v.name.includes('Samantha'));
-        if (preferredVoice) utterance.voice = preferredVoice;
+            utterance.onstart = () => {
+                console.log('AI started speaking');
+                setIsSpeaking(true);
+            };
 
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
+            utterance.onend = () => {
+                console.log('AI finished speaking');
+                setIsSpeaking(false);
+            };
 
-        synthRef.current.speak(utterance);
+            utterance.onerror = (e) => {
+                console.error('Speech synthesis error:', e);
+                setIsSpeaking(false);
+            };
+
+            // Find a decent voice with better fallback
+            const voices = synthRef.current.getVoices();
+            const preferredVoice = voices.find(v =>
+                v.name.includes('Google US English') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Microsoft Zira') ||
+                (v.lang.startsWith('en-') && v.localService)
+            ) || voices.find(v => v.lang.startsWith('en-'));
+
+            if (preferredVoice) utterance.voice = preferredVoice;
+
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            try {
+                synthRef.current.speak(utterance);
+            } catch (e) {
+                console.error('Error speaking:', e);
+                setIsSpeaking(false);
+            }
+        }, 100); // Small delay to ensure clean state
     }, []);
 
     const startListening = useCallback(() => {
-        if (recognitionRef.current) {
+        if (recognitionRef.current && !isListening) {
             try {
+                // Clear previous transcripts
+                finalTranscriptRef.current = '';
+                setFinalTranscript('');
+                setInterimTranscript('');
+                setTranscript('');
+
                 recognitionRef.current.start();
                 setIsListening(true);
+                console.log('Started listening...');
             } catch (e) {
-                console.error("Error starting recognition", e);
+                console.error("Error starting recognition:", e);
+                // If already started, just update state
+                if (e.name === 'InvalidStateError') {
+                    setIsListening(true);
+                }
             }
         }
-    }, []);
+    }, [isListening]);
 
     const stopListening = useCallback(() => {
-        if (recognitionRef.current) {
+        if (recognitionRef.current && isListening) {
             try {
                 recognitionRef.current.stop();
-            } catch (e) { }
-            // We forcefully set state to false
+                console.log('Stopped listening. Final transcript:', finalTranscriptRef.current);
+            } catch (e) {
+                console.error('Error stopping recognition:', e);
+            }
             setIsListening(false);
         }
-    }, []);
+    }, [isListening]);
 
     const stopSpeaking = useCallback(() => {
         if (synthRef.current) {
@@ -112,15 +173,31 @@ export function useVoice() {
         }
     }, []);
 
+    const clearTranscript = useCallback(() => {
+        finalTranscriptRef.current = '';
+        setFinalTranscript('');
+        setInterimTranscript('');
+        setTranscript('');
+    }, []);
+
+    const getCurrentTranscript = useCallback(() => {
+        return finalTranscriptRef.current.trim();
+    }, []);
+
     return {
         isListening,
         isSpeaking,
         transcript,
-        lastUserMessage,
+        interimTranscript,
+        finalTranscript,
         speak,
         startListening,
         stopListening,
         stopSpeaking,
+        clearTranscript,
+        getCurrentTranscript,
+        // For backward compatibility
+        lastUserMessage: finalTranscript,
         setTranscript
     };
 }
