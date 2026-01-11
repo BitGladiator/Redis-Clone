@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import {
     Mic, Brain, Target, ChevronRight,
     Users, Play, ArrowRight, BarChart3, Sparkles,
@@ -7,23 +7,64 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-// --- Animated Background Component ---
-const Background = ({ isDark }) => {
+// --- Enhanced Parallax Background Component ---
+const ParallaxBackground = ({ isDark, scrollY }) => {
+    // Create smooth spring animations for scroll
+    const y1 = useTransform(scrollY, [0, 1000], [0, -200]);
+    const y2 = useTransform(scrollY, [0, 1000], [0, -100]);
+    const y3 = useTransform(scrollY, [0, 1000], [0, -50]);
+    const opacity = useTransform(scrollY, [0, 300], [1, 0.3]);
+
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {/* Base Gradient */}
-            <div className={`absolute inset-0 transition-colors duration-700 ${isDark
-                ? 'bg-slate-950'
-                : 'bg-slate-50'
-                }`} />
+            {/* Base Gradient with parallax */}
+            <motion.div
+                style={{ y: y3 }}
+                className={`absolute inset-0 transition-colors duration-700 ${isDark
+                    ? 'bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950'
+                    : 'bg-gradient-to-b from-slate-50 via-white to-slate-50'
+                    }`}
+            />
 
-            {/* Animated Blobs */}
-            <div className="absolute inset-0 opacity-40">
+            {/* Floating Particles */}
+            <motion.div style={{ y: y1, opacity }} className="absolute inset-0">
+                {[...Array(20)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        initial={{
+                            x: Math.random() * window.innerWidth,
+                            y: Math.random() * 800,
+                            scale: Math.random() * 0.5 + 0.5
+                        }}
+                        animate={{
+                            y: [null, Math.random() * -100 - 50],
+                            x: [null, Math.random() * 100 - 50],
+                        }}
+                        transition={{
+                            duration: Math.random() * 10 + 10,
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            ease: "easeInOut"
+                        }}
+                        className={`absolute w-1 h-1 rounded-full ${isDark ? 'bg-indigo-400/30' : 'bg-indigo-600/20'
+                            }`}
+                        style={{
+                            boxShadow: isDark
+                                ? '0 0 10px 2px rgba(99, 102, 241, 0.3)'
+                                : '0 0 10px 2px rgba(99, 102, 241, 0.2)'
+                        }}
+                    />
+                ))}
+            </motion.div>
+
+            {/* Animated Gradient Orbs with Parallax */}
+            <motion.div style={{ y: y2 }} className="absolute inset-0 opacity-40">
                 <motion.div
                     animate={{
                         x: [0, 100, 0],
                         y: [0, -50, 0],
-                        scale: [1, 1.2, 1]
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 90, 0]
                     }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                     className={`absolute top-0 left-0 w-[500px] h-[500px] rounded-full blur-[100px] ${isDark ? 'bg-indigo-900/40' : 'bg-indigo-200/40'
@@ -33,7 +74,8 @@ const Background = ({ isDark }) => {
                     animate={{
                         x: [0, -100, 0],
                         y: [0, 100, 0],
-                        scale: [1, 1.5, 1]
+                        scale: [1, 1.5, 1],
+                        rotate: [0, -90, 0]
                     }}
                     transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
                     className={`absolute top-1/4 right-0 w-[600px] h-[600px] rounded-full blur-[120px] ${isDark ? 'bg-purple-900/30' : 'bg-purple-200/40'
@@ -43,17 +85,24 @@ const Background = ({ isDark }) => {
                     animate={{
                         x: [0, 50, 0],
                         y: [0, 50, 0],
-                        scale: [1, 1.3, 1]
+                        scale: [1, 1.3, 1],
+                        rotate: [0, 45, 0]
                     }}
                     transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
                     className={`absolute bottom-0 left-1/3 w-[800px] h-[600px] rounded-full blur-[130px] ${isDark ? 'bg-cyan-900/20' : 'bg-cyan-200/40'
                         }`}
                 />
-            </div>
+            </motion.div>
 
-            {/* Grid Overlay */}
-            <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay`} />
-            <div className={`absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]`} />
+            {/* Grid Overlay with Parallax */}
+            <motion.div
+                style={{ y: y3, opacity }}
+                className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay`}
+            />
+            <motion.div
+                style={{ y: y2 }}
+                className={`absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]`}
+            />
         </div>
     );
 };
@@ -113,7 +162,21 @@ export function Landing({ onStart }) {
     const [selectedLevel, setSelectedLevel] = useState('');
     const [selectedDifficulty, setSelectedDifficulty] = useState('');
     const configRef = useRef(null);
+    const containerRef = useRef(null);
     const isDark = theme === 'dark';
+
+    // Parallax scroll tracking
+    const { scrollY } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end start"]
+    });
+
+    // Smooth spring animation for scroll
+    const smoothScrollY = useSpring(scrollY, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+    });
 
     const handleStart = () => {
         if (selectedRole && selectedLevel && selectedDifficulty) {
@@ -126,16 +189,23 @@ export function Landing({ onStart }) {
     };
 
     return (
-        <div className={`min-h-screen w-full font-sans selection:bg-indigo-500/30 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-            <Background isDark={isDark} />
+        <div ref={containerRef} className={`min-h-screen w-full font-sans selection:bg-indigo-500/30 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+            <ParallaxBackground isDark={isDark} scrollY={smoothScrollY} />
 
 
             {/* HERO SECTION */}
             <section className="relative pt-32 pb-20 px-6 min-h-[90vh] flex flex-col items-center justify-center">
-                <div className="max-w-5xl mx-auto text-center z-10">
+                <motion.div
+                    style={{
+                        y: useTransform(smoothScrollY, [0, 500], [0, -100]),
+                        scale: useTransform(smoothScrollY, [0, 500], [1, 0.95])
+                    }}
+                    className="max-w-5xl mx-auto text-center z-10"
+                >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
+                        style={{ y: useTransform(smoothScrollY, [0, 500], [0, -50]) }}
                         className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium mb-8 border backdrop-blur-md shadow-sm ${isDark
                             ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'
                             : 'bg-white/80 text-indigo-600 border-indigo-100'
@@ -152,6 +222,7 @@ export function Landing({ onStart }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1, duration: 0.8 }}
+                        style={{ y: useTransform(smoothScrollY, [0, 500], [0, -80]) }}
                         className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8"
                     >
                         Master Your <br />
@@ -164,6 +235,7 @@ export function Landing({ onStart }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, duration: 0.8 }}
+                        style={{ y: useTransform(smoothScrollY, [0, 500], [0, -60]) }}
                         className={`text-xl md:text-2xl max-w-2xl mx-auto mb-12 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'
                             }`}
                     >
@@ -175,6 +247,7 @@ export function Landing({ onStart }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.8 }}
+                        style={{ y: useTransform(smoothScrollY, [0, 500], [0, -40]) }}
                         className="flex flex-col sm:flex-row items-center justify-center gap-4"
                     >
                         <button
@@ -201,6 +274,11 @@ export function Landing({ onStart }) {
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.8 }}
+                        style={{
+                            y: useTransform(smoothScrollY, [0, 500], [0, -30]),
+                            scale: useTransform(smoothScrollY, [0, 500], [1, 0.9]),
+                            rotateX: useTransform(smoothScrollY, [0, 500], [0, 5])
+                        }}
                         className="mt-16 max-w-5xl mx-auto"
                     >
                         <div className={`relative rounded-3xl overflow-hidden shadow-2xl ${isDark
@@ -250,6 +328,7 @@ export function Landing({ onStart }) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.6 }}
+                        style={{ y: useTransform(smoothScrollY, [0, 500], [0, -20]) }}
                         className={`mt-20 pt-10 border-t ${isDark ? 'border-white/10' : 'border-slate-200'}`}
                     >
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -270,18 +349,24 @@ export function Landing({ onStart }) {
                             ))}
                         </div>
                     </motion.div>
-                </div>
+                </motion.div>
             </section>
 
             {/* FEATURES SECTION */}
             <section className={`py-20 relative overflow-hidden ${isDark ? 'bg-slate-900/50' : 'bg-slate-50/50'}`}>
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <div className="text-center mb-16">
+                    <motion.div
+                        className="text-center mb-16"
+                        style={{
+                            y: useTransform(smoothScrollY, [300, 800], [50, -50]),
+                            opacity: useTransform(smoothScrollY, [300, 600], [0, 1])
+                        }}
+                    >
                         <h2 className="text-3xl md:text-5xl font-bold mb-6">Everything you need to prep</h2>
                         <p className={`text-xl max-w-2xl mx-auto ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                             Comprehensive tools designed to simulate real-world interview conditions.
                         </p>
-                    </div>
+                    </motion.div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {features.map((feature, idx) => (
@@ -291,6 +376,10 @@ export function Landing({ onStart }) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: idx * 0.1 }}
+                                style={{
+                                    y: useTransform(smoothScrollY, [400, 1000], [0, -(idx * 20 + 20)]),
+                                    rotateY: useTransform(smoothScrollY, [400, 1000], [0, idx % 2 === 0 ? 2 : -2])
+                                }}
                                 className={`group p-8 rounded-3xl border transition-all duration-300 hover:shadow-2xl ${isDark
                                     ? 'bg-slate-800/20 border-slate-700/50 hover:border-indigo-500/30 hover:bg-slate-800/40'
                                     : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50 hover:border-indigo-100'
