@@ -19,7 +19,7 @@ const Toggle = ({ value, onChange, isDark }) => (
             onChange(!value);
         }}
         className={`relative w-12 h-6 rounded-full transition-all duration-300 cursor-pointer flex-shrink-0 ${value
-            ? 'bg-indigo-600'
+            ? 'bg-[#2d6254]'
             : isDark ? 'bg-white/10' : 'bg-slate-200'
             }`}
     >
@@ -38,12 +38,12 @@ const SettingItem = ({ icon: Icon, title, description, children, onClick, isDark
             }`}
     >
         <div className="flex items-center gap-4">
-            <div className={`p-3 rounded-xl transition-colors ${isDark ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600'
+            <div className={`p-3 rounded-xl transition-colors ${isDark ? 'bg-[#2d6254]/30 text-[#8bc1af]' : 'bg-[#c5ddd4] text-[#1a3c34]'
                 }`}>
                 <Icon size={20} />
             </div>
             <div>
-                <p className={`text-base font-semibold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                <p className={`text-base font-semibold mb-1 ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                     {title}
                 </p>
                 <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -59,15 +59,15 @@ const SettingItem = ({ icon: Icon, title, description, children, onClick, isDark
 
 const Section = ({ title, children, isDark }) => (
     <div className="mb-8">
-        <h3 className={`text-sm font-bold uppercase tracking-wider mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'
+        <h3 className={`text-sm font-bold uppercase tracking-wider mb-4 ${isDark ? 'text-[#8bc1af]' : 'text-[#2d6254]'
             }`}>
             {title}
         </h3>
         <div className={`rounded-2xl overflow-hidden ${isDark
-            ? 'bg-white/5 border border-white/10'
-            : 'bg-white border border-slate-200 shadow-lg'
+            ? 'bg-slate-800/50 border border-slate-700/50'
+            : 'bg-white border border-slate-100 shadow-lg shadow-slate-100/50'
             }`}>
-            <div className={`divide-y ${isDark ? 'divide-white/10' : 'divide-slate-100'}`}>
+            <div className={`divide-y ${isDark ? 'divide-slate-700/50' : 'divide-slate-100'}`}>
                 {children}
             </div>
         </div>
@@ -118,7 +118,7 @@ export function Settings({ onBack }) {
             }),
             {
                 loading: 'Preparing export...',
-                success: '📦 Data exported successfully!',
+                success: 'Data exported successfully!',
                 error: 'Failed to export data',
             }
         );
@@ -128,58 +128,41 @@ export function Settings({ onBack }) {
         clearHistory();
         resetGamification();
         resetOnboarding();
-        toast.success('🗑️ All data has been cleared!', {
+        toast.success('All data has been cleared!', {
             duration: 3000,
         });
     };
 
     return (
-        <div className={`min-h-screen w-full ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
-            {/* Decorative Background */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <motion.div
-                    animate={{
-                        x: [0, 50, 0],
-                        y: [0, -30, 0],
-                        scale: [1, 1.1, 1]
-                    }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] ${isDark ? 'bg-indigo-900/20' : 'bg-indigo-200/40'
-                        }`}
-                />
-                <motion.div
-                    animate={{
-                        x: [0, -50, 0],
-                        y: [0, 50, 0],
-                        scale: [1, 1.2, 1]
-                    }}
-                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className={`absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full blur-[120px] ${isDark ? 'bg-purple-900/20' : 'bg-purple-200/40'
-                        }`}
-                />
-            </div>
-
-            <div className="max-w-4xl mx-auto py-12 px-6 relative z-10">
+        <div className="min-h-[80vh] py-8 px-6">
+            <div className="max-w-3xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-12">
+                    <div className="flex items-center justify-between mb-10">
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={onBack}
-                                className={`group p-3 rounded-xl transition-all ${isDark ? 'hover:bg-white/10' : 'hover:bg-white shadow-sm'
+                                className={`p-2 rounded-xl transition-all ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-100'
                                     }`}
                             >
-                                <ChevronLeft size={24} className={isDark ? 'text-slate-400 group-hover:text-white' : 'text-slate-500 group-hover:text-slate-900'} />
+                                <ChevronLeft size={24} className={isDark ? 'text-slate-400' : 'text-slate-500'} />
                             </button>
                             <div>
-                                <h1 className={`text-4xl font-bold tracking-tight mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                    Settings
+                                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-2 ${isDark
+                                    ? 'bg-[#2d6254]/20 text-[#8bc1af] border border-[#2d6254]/30'
+                                    : 'bg-[#c5ddd4]/50 text-[#1a3c34] border border-[#8bc1af]/30'
+                                    }`}>
+                                    <SettingsIcon size={12} />
+                                    // Settings //
+                                </div>
+                                <h1 className={`text-3xl md:text-4xl font-bold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
+                                    Preferences
                                 </h1>
-                                <p className={`text-lg ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                <p className={`mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                                     Customize your interview experience
                                 </p>
                             </div>
@@ -190,7 +173,7 @@ export function Settings({ onBack }) {
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.8 }}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl ${isDark ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl ${isDark ? 'bg-[#2d6254]/30 text-[#8bc1af]' : 'bg-[#c5ddd4] text-[#1a3c34]'
                                         }`}
                                 >
                                     <Check size={18} />
@@ -212,9 +195,9 @@ export function Settings({ onBack }) {
                                 <select
                                     value={settings.voiceSpeed}
                                     onChange={(e) => handleChange('voiceSpeed', parseFloat(e.target.value))}
-                                    className={`text-sm font-semibold px-4 py-2 rounded-lg border-0 outline-none cursor-pointer transition-colors ${isDark
-                                        ? 'bg-white/10 text-indigo-400 hover:bg-white/20'
-                                        : 'bg-slate-100 text-indigo-600 hover:bg-slate-200'
+                                    className={`text-sm font-semibold px-4 py-2 rounded-xl border-0 outline-none cursor-pointer transition-colors ${isDark
+                                        ? 'bg-slate-700 text-[#8bc1af] hover:bg-slate-600'
+                                        : 'bg-[#e8f5f0] text-[#1a3c34] hover:bg-[#c5ddd4]'
                                         }`}
                                 >
                                     <option value={0.75}>Slow</option>
@@ -278,7 +261,7 @@ export function Settings({ onBack }) {
                                 title="Privacy Mode"
                                 description="All data stays local on your device"
                             >
-                                <span className={`text-sm font-bold px-3 py-1.5 rounded-lg ${isDark ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
+                                <span className={`text-sm font-bold px-3 py-1.5 rounded-xl ${isDark ? 'bg-[#2d6254]/30 text-[#8bc1af]' : 'bg-[#c5ddd4] text-[#1a3c34]'
                                     }`}>
                                     Active
                                 </span>
@@ -289,7 +272,7 @@ export function Settings({ onBack }) {
                                     <button
                                         onClick={handleExport}
                                         className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all ${isDark
-                                            ? 'bg-white/10 text-slate-300 hover:bg-white/20'
+                                            ? 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                                             : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                                             }`}
                                     >
@@ -315,9 +298,9 @@ export function Settings({ onBack }) {
                             <button
                                 onClick={handleSave}
                                 disabled={saved}
-                                className={`w-full py-4 rounded-xl text-base font-bold transition-all shadow-lg ${saved
-                                    ? 'bg-emerald-500 text-white shadow-emerald-500/25'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/25 hover:scale-[1.02] active:scale-95'
+                                className={`w-full py-4 rounded-full text-base font-bold transition-all shadow-lg ${saved
+                                    ? 'bg-[#2d6254] text-white shadow-[#2d6254]/25'
+                                    : 'bg-[#1a3c34] hover:bg-[#234e44] text-white shadow-[#1a3c34]/25 hover:scale-[1.02] active:scale-95'
                                     }`}
                             >
                                 {saved ? '✓ Settings Saved' : 'Save All Changes'}

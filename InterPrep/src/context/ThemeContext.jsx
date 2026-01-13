@@ -7,9 +7,10 @@ export function ThemeProvider({ children }) {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('theme');
             if (saved) return saved;
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            // Default to light mode
+            return 'light';
         }
-        return 'dark';
+        return 'light';
     });
 
     useEffect(() => {

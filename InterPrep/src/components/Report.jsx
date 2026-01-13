@@ -38,43 +38,7 @@ const AnimatedCounter = ({ value, duration = 2000, className }) => {
     return <span className={className}>{count}</span>;
 };
 
-// Floating Orbs Background
-const FloatingOrbs = ({ isDark }) => {
-    return (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <motion.div
-                animate={{
-                    x: [0, 100, 0],
-                    y: [0, -50, 0],
-                    scale: [1, 1.2, 1],
-                }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className={`absolute -top-20 -left-20 w-64 h-64 rounded-full blur-3xl ${isDark ? 'bg-indigo-500/20' : 'bg-indigo-200/40'
-                    }`}
-            />
-            <motion.div
-                animate={{
-                    x: [0, -80, 0],
-                    y: [0, 80, 0],
-                    scale: [1, 1.3, 1],
-                }}
-                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                className={`absolute top-1/3 -right-20 w-72 h-72 rounded-full blur-3xl ${isDark ? 'bg-purple-500/20' : 'bg-purple-200/40'
-                    }`}
-            />
-            <motion.div
-                animate={{
-                    x: [0, 60, 0],
-                    y: [0, -60, 0],
-                    scale: [1, 1.15, 1],
-                }}
-                transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                className={`absolute bottom-20 left-1/4 w-56 h-56 rounded-full blur-3xl ${isDark ? 'bg-cyan-500/20' : 'bg-cyan-200/40'
-                    }`}
-            />
-        </div>
-    );
-};
+
 
 export function Report({ results, config, onRestart }) {
     const { theme } = useTheme();
@@ -109,7 +73,6 @@ export function Report({ results, config, onRestart }) {
     };
 
     const handleShare = () => {
-        // Copy link to clipboard
         const shareUrl = `${window.location.origin}/report/${Date.now()}`;
         navigator.clipboard.writeText(shareUrl).then(() => {
             toast.success('Link copied to clipboard!', {
@@ -132,8 +95,8 @@ export function Report({ results, config, onRestart }) {
             const end = Date.now() + duration;
 
             const colors = score >= 90
-                ? ['#10b981', '#14b8a6', '#06b6d4']
-                : ['#6366f1', '#8b5cf6', '#a855f7'];
+                ? ['#2d6254', '#6eb39d', '#8bc1af']
+                : ['#1a3c34', '#2d6254', '#8bc1af'];
 
             const frame = () => {
                 confetti({
@@ -161,9 +124,9 @@ export function Report({ results, config, onRestart }) {
     }, [score]);
 
     const getScoreColor = () => {
-        if (score >= 90) return 'from-emerald-500 to-teal-500';
-        if (score >= 75) return 'from-indigo-500 to-purple-500';
-        if (score >= 60) return 'from-yellow-500 to-orange-500';
+        if (score >= 90) return 'from-[#2d6254] to-[#6eb39d]';
+        if (score >= 75) return 'from-[#1a3c34] to-[#2d6254]';
+        if (score >= 60) return 'from-[#f59d82] to-[#fcd5c8]';
         return 'from-red-500 to-pink-500';
     };
 
@@ -187,9 +150,9 @@ export function Report({ results, config, onRestart }) {
     ];
 
     const metrics = [
-        { label: 'Questions Answered', value: messageCount, icon: MessageSquare, color: 'indigo' },
-        { label: 'Duration', value: `${durationMins}:${durationSecs.toString().padStart(2, '0')}`, icon: Clock, color: 'purple' },
-        { label: 'Completion', value: '100%', icon: Target, color: 'cyan' },
+        { label: 'Questions Answered', value: messageCount, icon: MessageSquare, gradient: 'from-[#1a3c34] to-[#2d6254]' },
+        { label: 'Duration', value: `${durationMins}:${durationSecs.toString().padStart(2, '0')}`, icon: Clock, gradient: 'from-[#2d6254] to-[#6eb39d]' },
+        { label: 'Completion', value: '100%', icon: Target, gradient: 'from-[#6eb39d] to-[#8bc1af]' },
     ];
 
     // Data for radial chart
@@ -197,7 +160,7 @@ export function Report({ results, config, onRestart }) {
         {
             name: 'Score',
             value: score,
-            fill: score >= 90 ? '#10b981' : score >= 75 ? '#6366f1' : score >= 60 ? '#f59e0b' : '#ef4444',
+            fill: score >= 90 ? '#2d6254' : score >= 75 ? '#1a3c34' : score >= 60 ? '#f59d82' : '#ef4444',
         },
     ];
 
@@ -209,10 +172,8 @@ export function Report({ results, config, onRestart }) {
     };
 
     return (
-        <div className="min-h-[80vh] py-8 relative overflow-hidden -mx-4 sm:-mx-6 lg:-mx-8">
-            <FloatingOrbs isDark={isDark} />
-
-            <div className="relative z-10 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-[80vh] py-8 px-6">
+            <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -223,20 +184,22 @@ export function Report({ results, config, onRestart }) {
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ type: 'spring', delay: 0.2, duration: 0.8 }}
-                        className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 relative ${isDark ? 'bg-gradient-to-br from-indigo-500/20 to-purple-500/20' : 'bg-gradient-to-br from-indigo-100 to-purple-100'
+                        className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 relative ${isDark
+                            ? 'bg-gradient-to-br from-[#1a3c34]/40 to-[#2d6254]/30'
+                            : 'bg-gradient-to-br from-[#c5ddd4] to-[#e8f5f0]'
                             }`}
                     >
                         {score >= 90 ? (
-                            <Trophy size={48} className="text-emerald-500" />
+                            <Trophy size={48} className="text-[#2d6254]" />
                         ) : (
-                            <Award size={48} className={isDark ? 'text-indigo-400' : 'text-indigo-600'} />
+                            <Award size={48} className={isDark ? 'text-[#8bc1af]' : 'text-[#2d6254]'} />
                         )}
 
                         {/* Pulsing ring */}
                         <motion.div
                             animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            className={`absolute inset-0 rounded-full border-2 ${score >= 90 ? 'border-emerald-500' : 'border-indigo-500'
+                            className={`absolute inset-0 rounded-full border-2 ${score >= 90 ? 'border-[#2d6254]' : 'border-[#8bc1af]'
                                 }`}
                         />
                     </motion.div>
@@ -245,7 +208,7 @@ export function Report({ results, config, onRestart }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className={`text-4xl md:text-5xl font-display font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'
+                        className={`text-4xl md:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-[#1a1a1a]'
                             }`}
                     >
                         Interview Complete! {score >= 90 && '🎉'}
@@ -257,7 +220,7 @@ export function Report({ results, config, onRestart }) {
                         className={`text-lg ${isDark ? 'text-slate-400' : 'text-slate-600'}`}
                     >
                         Here's your performance analysis for{' '}
-                        <span className="font-semibold text-indigo-500">{config?.level} {config?.role}</span>
+                        <span className="font-semibold text-[#2d6254]">{config?.level} {config?.role}</span>
                     </motion.p>
                 </motion.div>
 
@@ -269,23 +232,13 @@ export function Report({ results, config, onRestart }) {
                     className="mb-10"
                 >
                     <div className={`relative rounded-3xl p-8 md:p-12 overflow-hidden backdrop-blur-xl ${isDark
-                        ? 'bg-gradient-to-br from-slate-900/80 to-slate-800/80 border border-white/10'
-                        : 'bg-gradient-to-br from-white/80 to-slate-50/80 border border-slate-200'
+                        ? 'bg-slate-800/60 border border-slate-700/50'
+                        : 'bg-white/80 border border-slate-100 shadow-xl shadow-slate-100/50'
                         }`}>
                         <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
-                            {/* Enhanced Score Circle with Radial Chart */}
+                            {/* Score Circle with Radial Chart */}
                             <div className="flex justify-center">
                                 <div className="relative">
-                                    {/* Glow effect */}
-                                    <motion.div
-                                        animate={{
-                                            scale: [1, 1.1, 1],
-                                            opacity: [0.3, 0.5, 0.3]
-                                        }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                        className={`absolute inset-0 rounded-full blur-2xl ${score >= 90 ? 'bg-emerald-500' : 'bg-indigo-500'
-                                            }`}
-                                    />
 
                                     <ResponsiveContainer width={200} height={200}>
                                         <RadialBarChart
@@ -312,7 +265,7 @@ export function Report({ results, config, onRestart }) {
                                             initial={{ opacity: 0, scale: 0.5 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: 1, type: 'spring' }}
-                                            className={`text-6xl font-bold font-display bg-gradient-to-r ${getScoreColor()} bg-clip-text text-transparent`}
+                                            className={`text-6xl font-bold bg-gradient-to-r ${getScoreColor()} bg-clip-text text-transparent`}
                                         >
                                             <AnimatedCounter value={score} duration={2000} />
                                         </motion.div>
@@ -341,7 +294,7 @@ export function Report({ results, config, onRestart }) {
                                                     }}
                                                     className="absolute top-1/2 left-1/2"
                                                 >
-                                                    <Sparkles size={16} className="text-emerald-500" />
+                                                    <Sparkles size={16} className="text-[#2d6254]" />
                                                 </motion.div>
                                             ))}
                                         </>
@@ -356,8 +309,8 @@ export function Report({ results, config, onRestart }) {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.7 }}
                                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${score >= 75
-                                        ? isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700'
-                                        : isDark ? 'bg-yellow-500/20 text-yellow-400' : 'bg-yellow-100 text-yellow-700'
+                                        ? isDark ? 'bg-[#2d6254]/30 text-[#8bc1af]' : 'bg-[#c5ddd4] text-[#1a3c34]'
+                                        : isDark ? 'bg-[#f59d82]/20 text-[#f59d82]' : 'bg-[#fef0ec] text-[#e07b5d]'
                                         }`}
                                 >
                                     <Star size={14} className="fill-current" />
@@ -368,7 +321,7 @@ export function Report({ results, config, onRestart }) {
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.8 }}
-                                    className={`text-3xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}
+                                    className={`text-3xl font-bold mb-3 ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}
                                 >
                                     {score >= 90 ? 'Outstanding work!' : score >= 75 ? 'Great job!' : 'Keep practicing!'}
                                 </motion.h3>
@@ -389,7 +342,7 @@ export function Report({ results, config, onRestart }) {
                     </div>
                 </motion.div>
 
-                {/* Metrics with 3D Hover Effects */}
+                {/* Metrics */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -402,26 +355,16 @@ export function Report({ results, config, onRestart }) {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.7 + idx * 0.1 }}
-                            whileHover={{
-                                scale: 1.05,
-                                rotateY: 5,
-                                transition: { type: 'spring', stiffness: 300 }
-                            }}
-                            className={`p-6 rounded-2xl text-center cursor-pointer transform-gpu perspective-1000 ${isDark
-                                ? 'bg-slate-800/50 border border-white/10 hover:bg-slate-800/70 hover:border-white/20'
-                                : 'bg-white border border-slate-200 shadow-sm hover:shadow-lg'
+                            whileHover={{ y: -4 }}
+                            className={`p-6 rounded-2xl text-center cursor-pointer border ${isDark
+                                ? 'bg-slate-800/50 border-slate-700/50 hover:border-[#3d8570]/50'
+                                : 'bg-white border-slate-100 shadow-lg hover:shadow-xl hover:border-[#8bc1af]'
                                 }`}
                         >
-                            <motion.div
-                                whileHover={{ rotate: 360, scale: 1.2 }}
-                                transition={{ duration: 0.5 }}
-                            >
-                                <metric.icon
-                                    size={28}
-                                    className={`mx-auto mb-3 text-${metric.color}-500`}
-                                />
-                            </motion.div>
-                            <div className={`text-3xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <div className={`w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center bg-gradient-to-br ${metric.gradient} text-white`}>
+                                <metric.icon size={24} />
+                            </div>
+                            <div className={`text-3xl font-bold mb-1 ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                                 {metric.value}
                             </div>
                             <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -431,7 +374,7 @@ export function Report({ results, config, onRestart }) {
                     ))}
                 </motion.div>
 
-                {/* Strengths & Improvements with Staggered Animations */}
+                {/* Strengths & Improvements */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -440,16 +383,16 @@ export function Report({ results, config, onRestart }) {
                 >
                     {/* Strengths */}
                     <motion.div
-                        className={`p-6 rounded-2xl ${isDark
-                            ? 'bg-emerald-500/10 border border-emerald-500/20'
-                            : 'bg-emerald-50 border border-emerald-100'
+                        className={`p-6 rounded-2xl border ${isDark
+                            ? 'bg-[#2d6254]/20 border-[#2d6254]/30'
+                            : 'bg-[#e8f5f0] border-[#c5ddd4]'
                             }`}
                     >
                         <div className="flex items-center gap-2 mb-4">
-                            <div className={`p-2 rounded-lg ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
-                                <TrendingUp size={20} className="text-emerald-500" />
+                            <div className={`p-2 rounded-xl ${isDark ? 'bg-[#2d6254]/30' : 'bg-[#c5ddd4]'}`}>
+                                <TrendingUp size={20} className="text-[#2d6254]" />
                             </div>
-                            <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                                 Strengths
                             </h3>
                         </div>
@@ -467,7 +410,7 @@ export function Report({ results, config, onRestart }) {
                                         onClick={() => toggleDetail(idx, 'strength')}
                                         whileHover={{ x: 5 }}
                                     >
-                                        <CheckCircle size={18} className="text-emerald-500 mt-0.5 flex-shrink-0" />
+                                        <CheckCircle size={18} className="text-[#2d6254] mt-0.5 flex-shrink-0" />
                                         <span className={`flex-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                                             {item.text}
                                         </span>
@@ -491,16 +434,16 @@ export function Report({ results, config, onRestart }) {
 
                     {/* Improvements */}
                     <motion.div
-                        className={`p-6 rounded-2xl ${isDark
-                            ? 'bg-amber-500/10 border border-amber-500/20'
-                            : 'bg-amber-50 border border-amber-100'
+                        className={`p-6 rounded-2xl border ${isDark
+                            ? 'bg-[#f59d82]/10 border-[#f59d82]/20'
+                            : 'bg-[#fef5f2] border-[#fcd5c8]'
                             }`}
                     >
                         <div className="flex items-center gap-2 mb-4">
-                            <div className={`p-2 rounded-lg ${isDark ? 'bg-amber-500/20' : 'bg-amber-100'}`}>
-                                <Zap size={20} className="text-amber-500" />
+                            <div className={`p-2 rounded-xl ${isDark ? 'bg-[#f59d82]/20' : 'bg-[#fcd5c8]'}`}>
+                                <Zap size={20} className="text-[#f59d82]" />
                             </div>
-                            <h3 className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                                 Areas to Improve
                             </h3>
                         </div>
@@ -518,7 +461,7 @@ export function Report({ results, config, onRestart }) {
                                         onClick={() => toggleDetail(idx, 'improvement')}
                                         whileHover={{ x: 5 }}
                                     >
-                                        <AlertCircle size={18} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                                        <AlertCircle size={18} className="text-[#f59d82] mt-0.5 flex-shrink-0" />
                                         <span className={`flex-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                                             {item.text}
                                         </span>
@@ -541,7 +484,7 @@ export function Report({ results, config, onRestart }) {
                     </motion.div>
                 </motion.div>
 
-                {/* Actions with Enhanced Feedback */}
+                {/* Actions */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -550,10 +493,7 @@ export function Report({ results, config, onRestart }) {
                 >
                     <motion.button
                         onClick={() => setShowRestartModal(true)}
-                        className={`group relative flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-semibold w-full sm:w-auto overflow-hidden ${isDark
-                            ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/25'
-                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
-                            }`}
+                        className="group relative flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold w-full sm:w-auto overflow-hidden bg-gradient-to-r from-[#1a3c34] to-[#2d6254] text-white shadow-lg shadow-[#1a3c34]/25"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
@@ -569,9 +509,9 @@ export function Report({ results, config, onRestart }) {
 
                     <motion.button
                         onClick={handleDownload}
-                        className={`flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-medium w-full sm:w-auto ${isDark
-                            ? 'bg-white/10 text-white hover:bg-white/20'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        className={`flex items-center justify-center gap-2 px-6 py-4 rounded-full font-medium w-full sm:w-auto border ${isDark
+                            ? 'bg-slate-800/50 border-slate-700 text-white hover:bg-slate-800'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                             }`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -582,9 +522,9 @@ export function Report({ results, config, onRestart }) {
 
                     <motion.button
                         onClick={handleShare}
-                        className={`flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-medium w-full sm:w-auto ${isDark
-                            ? 'bg-white/10 text-white hover:bg-white/20'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        className={`flex items-center justify-center gap-2 px-6 py-4 rounded-full font-medium w-full sm:w-auto border ${isDark
+                            ? 'bg-slate-800/50 border-slate-700 text-white hover:bg-slate-800'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                             }`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}

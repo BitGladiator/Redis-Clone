@@ -6,13 +6,12 @@ import { QUESTIONS } from '../lib/questions';
 import { useTheme } from '../context/ThemeContext';
 
 // Animated waveform visualization
-const AudioWaveform = ({ isActive, color = "indigo" }) => (
+const AudioWaveform = ({ isActive, color = "forest" }) => (
     <div className="flex items-center justify-center gap-1 h-8">
         {[...Array(5)].map((_, i) => (
             <motion.div
                 key={i}
-                className={`w-1 rounded-full ${color === "indigo" ? "bg-indigo-500" : "bg-teal-500"
-                    }`}
+                className={`w-1 rounded-full ${color === "forest" ? "bg-[#2d6254]" : "bg-[#8bc1af]"}`}
                 animate={isActive ? {
                     height: [8, 24, 8],
                 } : { height: 8 }}
@@ -103,17 +102,12 @@ export function InterviewSession({ config, onEnd }) {
         if (isListening) {
             stopListening();
             setInterviewState('processing');
-
-            // Wait a bit for final transcript to be captured
             setTimeout(() => {
                 handleUserResponse();
             }, 500);
         } else {
-            // Stop AI speech before starting to listen
             stopSpeaking();
             clearTranscript();
-
-            // Small delay to ensure speech has stopped
             setTimeout(() => {
                 startListening();
                 setInterviewState('listening');
@@ -129,30 +123,27 @@ export function InterviewSession({ config, onEnd }) {
         const userAnswer = text.toLowerCase();
         const words = userAnswer.split(/\s+/);
 
-        // If question doesn't have verification data (old format), use basic analysis
         if (!questionData || !questionData.expectedPoints) {
             return basicAnalysis(text);
         }
 
         const { expectedPoints, commonMistakes, keyTerms } = questionData;
 
-        // Check which expected points were covered
         const coveredPoints = [];
         const missedPoints = [];
 
         expectedPoints.forEach(point => {
             const pointWords = point.toLowerCase().split(/\s+/);
-            const keyWordsInPoint = pointWords.filter(w => w.length > 3); // Focus on meaningful words
+            const keyWordsInPoint = pointWords.filter(w => w.length > 3);
             const matchCount = keyWordsInPoint.filter(word => userAnswer.includes(word)).length;
 
-            if (matchCount >= Math.ceil(keyWordsInPoint.length * 0.4)) { // 40% match threshold
+            if (matchCount >= Math.ceil(keyWordsInPoint.length * 0.4)) {
                 coveredPoints.push(point);
             } else {
                 missedPoints.push(point);
             }
         });
 
-        // Check for common mistakes
         const detectedMistakes = [];
         if (commonMistakes) {
             commonMistakes.forEach(mistake => {
@@ -166,20 +157,16 @@ export function InterviewSession({ config, onEnd }) {
             });
         }
 
-        // Check for key terminology
         const usedKeyTerms = keyTerms ? keyTerms.filter(term =>
             userAnswer.includes(term.toLowerCase())
         ) : [];
 
-        // Calculate correctness score
         const coverageScore = expectedPoints.length > 0
             ? (coveredPoints.length / expectedPoints.length) * 100
             : 50;
 
-        // Build detailed feedback
         let feedback = [];
 
-        // Overall assessment
         if (coverageScore >= 80) {
             feedback.push("Excellent answer!");
         } else if (coverageScore >= 60) {
@@ -190,23 +177,19 @@ export function InterviewSession({ config, onEnd }) {
             feedback.push("Your answer needs more detail and accuracy.");
         }
 
-        // What was correct
         if (coveredPoints.length > 0) {
             feedback.push(`\n\n✅ What you got right: ${coveredPoints.slice(0, 3).join(', ')}.`);
         }
 
-        // What was missed
         if (missedPoints.length > 0) {
             const topMissed = missedPoints.slice(0, 2);
             feedback.push(`\n\n❌ What you missed: ${topMissed.join(', ')}.`);
         }
 
-        // Detected mistakes
         if (detectedMistakes.length > 0) {
             feedback.push(`\n\n⚠️ Common misconception detected: ${detectedMistakes[0]}.`);
         }
 
-        // Improvement suggestions
         const suggestions = [];
         if (usedKeyTerms.length < keyTerms.length / 2) {
             suggestions.push("use more technical terminology");
@@ -222,7 +205,6 @@ export function InterviewSession({ config, onEnd }) {
             feedback.push(`\n\n💡 Suggestion: Try to ${suggestions.slice(0, 2).join(' and ')}.`);
         }
 
-        // Show expected answer elements if score is low
         if (coverageScore < 60 && missedPoints.length > 0) {
             feedback.push(`\n\n📝 Key points to remember: ${missedPoints.slice(0, 3).join('; ')}.`);
         }
@@ -230,7 +212,6 @@ export function InterviewSession({ config, onEnd }) {
         return feedback.join(' ');
     };
 
-    // Fallback basic analysis for questions without verification data
     const basicAnalysis = (text) => {
         const words = text.toLowerCase().split(/\s+/);
         const charCount = text.trim().length;
@@ -271,7 +252,6 @@ export function InterviewSession({ config, onEnd }) {
     };
 
     const handleUserResponse = () => {
-        // Get the current transcript
         const userText = getCurrentTranscript();
 
         console.log('Processing user response:', userText);
@@ -282,11 +262,9 @@ export function InterviewSession({ config, onEnd }) {
             setMessages(prev => [...prev, { role: 'user', text: userText }]);
         }
 
-        // Process after a short delay to show the processing state
         processingTimeoutRef.current = setTimeout(() => {
             const nextIdx = currentIdx + 1;
 
-            // Get current question data for verification
             const currentQuestion = questions[currentIdx];
             const questionData = typeof currentQuestion === 'object' ? currentQuestion : null;
 
@@ -311,29 +289,37 @@ export function InterviewSession({ config, onEnd }) {
     };
 
     return (
-        <div className="min-h-[80vh] py-8">
+        <div className="min-h-[80vh] py-8 px-6">
             {/* Header Bar */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`rounded-2xl p-4 mb-6 flex items-center justify-between ${isDark ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200 shadow-sm'
+                className={`max-w-6xl mx-auto rounded-2xl p-4 mb-6 flex items-center justify-between ${isDark
+                    ? 'bg-slate-800/50 border border-slate-700/50'
+                    : 'bg-white border border-slate-100 shadow-lg shadow-slate-100/50'
                     }`}
             >
                 <div className="flex items-center gap-4">
-                    <div className={`px-4 py-2 rounded-full text-sm font-medium ${isDark ? 'bg-indigo-500/20 text-indigo-400' : 'bg-indigo-100 text-indigo-600'
+                    <div className={`px-4 py-2 rounded-full text-sm font-semibold ${isDark
+                        ? 'bg-[#2d6254]/30 text-[#8bc1af]'
+                        : 'bg-[#c5ddd4] text-[#1a3c34]'
                         }`}>
                         {config.role}
                     </div>
-                    <div className={`px-3 py-1 rounded-full text-xs ${isDark ? 'bg-white/10 text-slate-400' : 'bg-slate-100 text-slate-600'
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${isDark
+                        ? 'bg-slate-700 text-slate-400'
+                        : 'bg-slate-100 text-slate-600'
                         }`}>
                         {config.level}
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-mono text-lg font-semibold ${isDark ? 'bg-white/5 text-white' : 'bg-slate-100 text-slate-900'
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-mono text-lg font-semibold ${isDark
+                        ? 'bg-slate-700/50 text-white'
+                        : 'bg-[#e8f5f0] text-[#1a3c34]'
                         }`}>
-                        <Timer size={18} className={isDark ? 'text-indigo-400' : 'text-indigo-600'} />
+                        <Timer size={18} className={isDark ? 'text-[#8bc1af]' : 'text-[#2d6254]'} />
                         {formatTime(timer)}
                     </div>
                     <motion.button
@@ -351,34 +337,34 @@ export function InterviewSession({ config, onEnd }) {
                 </div>
             </motion.div>
 
-            <div className="grid lg:grid-cols-5 gap-6">
+            <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-6">
                 {/* Main Interview Area */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className={`lg:col-span-3 rounded-3xl p-8 relative overflow-hidden ${isDark
-                        ? 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-white/10'
-                        : 'bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100'
+                        ? 'bg-gradient-to-br from-[#1a3c34]/40 to-[#2d6254]/20 border border-[#2d6254]/30'
+                        : 'bg-gradient-to-br from-[#e8f5f0] to-[#c5ddd4]/30 border border-[#c5ddd4]'
                         }`}
                 >
                     {/* Decorative elements */}
-                    <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl ${isDark ? 'bg-indigo-500/10' : 'bg-indigo-200/50'
+                    <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl ${isDark ? 'bg-[#2d6254]/20' : 'bg-[#8bc1af]/30'
                         }`} />
-                    <div className={`absolute bottom-0 left-0 w-48 h-48 rounded-full blur-3xl ${isDark ? 'bg-purple-500/10' : 'bg-purple-200/50'
+                    <div className={`absolute bottom-0 left-0 w-48 h-48 rounded-full blur-3xl ${isDark ? 'bg-[#f59d82]/10' : 'bg-[#fcd5c8]/50'
                         }`} />
 
                     <div className="relative z-10">
                         {/* Status Badge */}
                         <div className="flex justify-center mb-6">
                             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${interviewState === 'listening'
-                                ? isDark ? 'bg-teal-500/20 text-teal-400' : 'bg-teal-100 text-teal-700'
+                                ? isDark ? 'bg-[#8bc1af]/20 text-[#8bc1af]' : 'bg-[#c5ddd4] text-[#1a3c34]'
                                 : interviewState === 'processing'
-                                    ? isDark ? 'bg-yellow-500/20 text-yellow-400' : 'bg-yellow-100 text-yellow-700'
-                                    : isDark ? 'bg-indigo-500/20 text-indigo-400' : 'bg-indigo-100 text-indigo-700'
+                                    ? isDark ? 'bg-[#f59d82]/20 text-[#f59d82]' : 'bg-[#fef0ec] text-[#e07b5d]'
+                                    : isDark ? 'bg-[#2d6254]/30 text-[#8bc1af]' : 'bg-[#c5ddd4] text-[#1a3c34]'
                                 }`}>
-                                <span className={`w-2 h-2 rounded-full animate-pulse ${interviewState === 'listening' ? 'bg-teal-500'
-                                    : interviewState === 'processing' ? 'bg-yellow-500'
-                                        : 'bg-indigo-500'
+                                <span className={`w-2 h-2 rounded-full animate-pulse ${interviewState === 'listening' ? 'bg-[#8bc1af]'
+                                    : interviewState === 'processing' ? 'bg-[#f59d82]'
+                                        : 'bg-[#2d6254]'
                                     }`} />
                                 {interviewState === 'listening' ? 'Listening...'
                                     : interviewState === 'processing' ? 'Processing...'
@@ -388,11 +374,11 @@ export function InterviewSession({ config, onEnd }) {
 
                         {/* Current Question */}
                         <div className="text-center mb-10">
-                            <p className={`text-sm uppercase tracking-wider mb-3 ${isDark ? 'text-slate-500' : 'text-slate-400'
+                            <p className={`text-sm uppercase tracking-wider mb-3 ${isDark ? 'text-slate-500' : 'text-[#2d6254]'
                                 }`}>
                                 Question {currentIdx + 1} of {questions.length}
                             </p>
-                            <h2 className={`text-2xl md:text-3xl font-display font-semibold leading-relaxed ${isDark ? 'text-white' : 'text-slate-900'
+                            <h2 className={`text-2xl md:text-3xl font-bold leading-relaxed ${isDark ? 'text-white' : 'text-[#1a1a1a]'
                                 }`}>
                                 {questions[currentIdx]
                                     ? (typeof questions[currentIdx] === 'object'
@@ -404,19 +390,19 @@ export function InterviewSession({ config, onEnd }) {
 
                         {/* Voice Visualizer */}
                         <div className="flex flex-col items-center gap-6">
-                            <div className={`relative w-32 h-32 rounded-full flex items-center justify-center ${isDark ? 'bg-white/5' : 'bg-white shadow-lg'
+                            <div className={`relative w-32 h-32 rounded-full flex items-center justify-center ${isDark ? 'bg-slate-800/50' : 'bg-white shadow-xl shadow-slate-200/50'
                                 }`}>
                                 {/* Pulse rings */}
                                 {(isListening || isSpeaking) && (
                                     <>
                                         <motion.div
-                                            className={`absolute inset-0 rounded-full ${isListening ? 'bg-teal-500/20' : 'bg-indigo-500/20'
+                                            className={`absolute inset-0 rounded-full ${isListening ? 'bg-[#8bc1af]/20' : 'bg-[#2d6254]/20'
                                                 }`}
                                             animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
                                             transition={{ duration: 2, repeat: Infinity }}
                                         />
                                         <motion.div
-                                            className={`absolute inset-0 rounded-full ${isListening ? 'bg-teal-500/20' : 'bg-indigo-500/20'
+                                            className={`absolute inset-0 rounded-full ${isListening ? 'bg-[#8bc1af]/20' : 'bg-[#2d6254]/20'
                                                 }`}
                                             animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
                                             transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
@@ -428,10 +414,10 @@ export function InterviewSession({ config, onEnd }) {
                                     onClick={handleMicToggle}
                                     disabled={isSpeaking || interviewState === 'processing'}
                                     className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all ${isListening
-                                        ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/30'
+                                        ? 'bg-gradient-to-br from-[#8bc1af] to-[#6eb39d] text-white shadow-lg shadow-[#8bc1af]/30'
                                         : isDark
-                                            ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30'
-                                            : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                                            ? 'bg-gradient-to-br from-[#1a3c34] to-[#2d6254] text-white shadow-lg shadow-[#1a3c34]/30'
+                                            : 'bg-gradient-to-br from-[#1a3c34] to-[#2d6254] text-white shadow-lg shadow-[#1a3c34]/30'
                                         } ${(isSpeaking || interviewState === 'processing') ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -455,7 +441,7 @@ export function InterviewSession({ config, onEnd }) {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0 }}
-                                        className={`max-w-lg text-center p-4 rounded-2xl ${isDark ? 'bg-white/5' : 'bg-white shadow-sm'
+                                        className={`max-w-lg text-center p-4 rounded-2xl ${isDark ? 'bg-slate-800/50' : 'bg-white shadow-lg'
                                             }`}
                                     >
                                         <p className={`italic ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
@@ -472,13 +458,17 @@ export function InterviewSession({ config, onEnd }) {
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className={`lg:col-span-2 rounded-3xl overflow-hidden ${isDark ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200 shadow-lg'
+                    className={`lg:col-span-2 rounded-3xl overflow-hidden ${isDark
+                        ? 'bg-slate-800/50 border border-slate-700/50'
+                        : 'bg-white border border-slate-100 shadow-xl shadow-slate-100/50'
                         }`}
                 >
-                    <div className={`p-4 border-b flex items-center gap-2 ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50'
+                    <div className={`p-4 border-b flex items-center gap-2 ${isDark
+                        ? 'border-slate-700/50 bg-slate-800/50'
+                        : 'border-slate-100 bg-[#e8f5f0]'
                         }`}>
-                        <MessageSquare size={18} className={isDark ? 'text-indigo-400' : 'text-indigo-600'} />
-                        <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                        <MessageSquare size={18} className={isDark ? 'text-[#8bc1af]' : 'text-[#2d6254]'} />
+                        <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                             Transcript
                         </h3>
                     </div>
@@ -500,13 +490,16 @@ export function InterviewSession({ config, onEnd }) {
                             >
                                 <div className={`max-w-[85%] p-4 rounded-2xl ${msg.role === 'ai'
                                     ? isDark
-                                        ? 'bg-indigo-500/20 text-slate-200'
-                                        : 'bg-indigo-50 text-slate-800'
+                                        ? 'bg-[#2d6254]/30 text-slate-200'
+                                        : 'bg-[#e8f5f0] text-slate-800'
                                     : isDark
-                                        ? 'bg-teal-500/20 text-slate-200'
-                                        : 'bg-teal-50 text-slate-800'
+                                        ? 'bg-[#8bc1af]/20 text-slate-200'
+                                        : 'bg-[#c5ddd4] text-slate-800'
                                     }`}>
-                                    <p className="text-xs font-medium mb-1 opacity-60">
+                                    <p className={`text-xs font-semibold mb-1 ${msg.role === 'ai'
+                                        ? isDark ? 'text-[#8bc1af]' : 'text-[#2d6254]'
+                                        : isDark ? 'text-[#8bc1af]' : 'text-[#1a3c34]'
+                                        }`}>
                                         {msg.role === 'ai' ? 'AI Interviewer' : 'You'}
                                     </p>
                                     <p className="text-sm leading-relaxed">{msg.text}</p>
