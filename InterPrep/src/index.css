@@ -131,7 +131,7 @@
   .dark {
     --toast-bg: rgba(15, 23, 42, 0.95);
     --toast-color: #f1f5f9;
-    --toast-border: rgba(255, 255, 255, 0.1);
+    --toast-border: rgba(45, 98, 84, 0.3);
   }
 
   /* Custom Scrollbar - Dark Mode */
@@ -165,9 +165,14 @@
 
 @layer components {
 
-  /* Dark mode glass panel */
+  /* Dark mode glass panel - Enhanced with subtle glow */
   .dark .glass-panel {
-    @apply bg-gray-900/40 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply bg-gray-900/60 backdrop-blur-xl border shadow-2xl;
+    border-color: rgba(45, 98, 84, 0.25);
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(45, 98, 84, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 
   /* Light mode glass panel */
@@ -177,6 +182,59 @@
 
   .glass-panel {
     @apply backdrop-blur-xl;
+  }
+
+  /* Dark mode card enhancements */
+  .dark .dark-card {
+    @apply bg-slate-900/70 backdrop-blur-sm;
+    border: 1px solid rgba(45, 98, 84, 0.2);
+    box-shadow: 
+      0 4px 24px -4px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.03),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .dark .dark-card:hover {
+    border-color: rgba(45, 98, 84, 0.35);
+    box-shadow: 
+      0 8px 32px -4px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(45, 98, 84, 0.15),
+      0 0 40px -10px rgba(45, 98, 84, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* Dark mode subtle ambient glow */
+  .dark .ambient-glow {
+    position: relative;
+  }
+
+  .dark .ambient-glow::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(45, 98, 84, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Dark mode section backgrounds */
+  .dark .dark-section {
+    background: linear-gradient(180deg, 
+      rgba(3, 7, 18, 0.95) 0%,
+      rgba(10, 20, 30, 0.9) 50%,
+      rgba(3, 7, 18, 0.95) 100%
+    );
+  }
+
+  .dark .dark-section-alt {
+    background: linear-gradient(180deg,
+      rgba(15, 23, 35, 0.8) 0%,
+      rgba(20, 30, 45, 0.6) 50%,
+      rgba(15, 23, 35, 0.8) 100%
+    );
   }
 
   .glass-button {
@@ -229,8 +287,22 @@
   }
 
   .dark .floating-card {
-    @apply bg-slate-900/60 border-white/10;
-    box-shadow: 0 8px 40px -8px rgba(0, 0, 0, 0.3), 0 4px 16px -4px rgba(0, 0, 0, 0.2);
+    @apply bg-slate-900/70 backdrop-blur-sm;
+    border: 1px solid rgba(45, 98, 84, 0.2);
+    box-shadow: 
+      0 8px 40px -8px rgba(0, 0, 0, 0.4),
+      0 4px 16px -4px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.03),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .dark .floating-card:hover {
+    border-color: rgba(45, 98, 84, 0.35);
+    box-shadow: 
+      0 16px 60px -12px rgba(0, 0, 0, 0.5),
+      0 8px 24px -8px rgba(0, 0, 0, 0.3),
+      0 0 50px -15px rgba(45, 98, 84, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   /* Coral Glow Effect */

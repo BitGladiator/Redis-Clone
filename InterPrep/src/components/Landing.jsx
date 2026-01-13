@@ -21,7 +21,7 @@ const ProfileCard = ({ name, role, date, position, delay, isDark, avatarColor, s
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: delay * 2 }}
             className={`rounded-2xl border p-4 backdrop-blur-sm ${isDark
-                ? 'bg-slate-900/90 border-white/10 shadow-2xl'
+                ? 'bg-slate-900/80 border-[#2d6254]/30 shadow-2xl shadow-black/40'
                 : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
                 }`}
         >
@@ -211,7 +211,7 @@ export function Landing({ onStart }) {
             </section>
 
             {/* ABOUT OUR PLATFORM SECTION */}
-            <section className={`py-20 px-6 ${isDark ? 'bg-slate-900/30' : 'bg-[#f8faf9]'}`}>
+            <section className={`py-20 px-6 ${isDark ? 'bg-slate-900/40' : 'bg-[#f8faf9]'}`}>
                 <div className="max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         {/* Left Content */}
@@ -232,7 +232,7 @@ export function Landing({ onStart }) {
                         {/* Right Stats */}
                         <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-8">
                             {/* Stat 1 */}
-                            <div className={`p-6 rounded-2xl border-l-4 border-[#2d6254] ${isDark ? 'bg-slate-800/50' : 'bg-white'}`}>
+                            <div className={`p-6 rounded-2xl border-l-4 border-[#2d6254] transition-all ${isDark ? 'bg-slate-800/60 hover:bg-slate-800/80 border border-l-4 border-[#2d6254]/50' : 'bg-white'}`}>
                                 <div className="flex items-baseline gap-2 mb-2">
                                     <span className={`text-4xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>120k</span>
                                     <span className="text-[#2d6254] text-2xl font-bold">Users</span>
@@ -242,7 +242,7 @@ export function Landing({ onStart }) {
                                 </p>
                             </div>
                             {/* Stat 2 */}
-                            <div className={`p-6 rounded-2xl border-l-4 border-[#f59d82] ${isDark ? 'bg-slate-800/50' : 'bg-white'}`}>
+                            <div className={`p-6 rounded-2xl border-l-4 border-[#f59d82] transition-all ${isDark ? 'bg-slate-800/60 hover:bg-slate-800/80 border border-l-4 border-[#f59d82]/50' : 'bg-white'}`}>
                                 <div className="flex items-baseline gap-2 mb-2">
                                     <span className={`text-4xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>120+</span>
                                     <span className="text-[#f59d82] text-2xl font-bold">Companies</span>
@@ -257,7 +257,14 @@ export function Landing({ onStart }) {
             </section>
 
             {/* OUR FEATURES SECTION */}
-            <section className={`py-24 px-6 ${isDark ? 'bg-slate-900/50' : 'bg-slate-50'}`}>
+            <section className={`py-24 px-6 ${isDark ? 'bg-slate-900/50 relative' : 'bg-slate-50'}`}>
+                {/* Dark mode feature section glow */}
+                {isDark && (
+                    <div
+                        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-[150px] opacity-[0.08] pointer-events-none"
+                        style={{ background: 'radial-gradient(ellipse, #2d6254 0%, transparent 70%)' }}
+                    />
+                )}
                 <div className="max-w-7xl mx-auto">
                     <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
                         <div className="text-[#2d6254] text-sm font-medium mb-4">// Our Features //</div>
@@ -270,7 +277,7 @@ export function Landing({ onStart }) {
                     <div className="grid md:grid-cols-3 gap-6">
                         {/* Feature 1 - AI Mock Interviews */}
                         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
-                            className={`rounded-2xl overflow-hidden border ${isDark ? 'bg-slate-800/40 border-slate-700/50' : 'bg-white border-slate-100'}`} style={{ boxShadow: '0 8px 40px -8px rgba(0, 0, 0, 0.08)' }}>
+                            className={`rounded-2xl overflow-hidden border transition-all duration-300 ${isDark ? 'bg-slate-800/50 border-[#2d6254]/20 hover:border-[#2d6254]/40 hover:bg-slate-800/70' : 'bg-white border-slate-100'}`} style={{ boxShadow: isDark ? '0 8px 40px -8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(45, 98, 84, 0.1)' : '0 8px 40px -8px rgba(0, 0, 0, 0.08)' }}>
                             <div className="p-6">
                                 <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>AI Mock Interviews</h3>
                                 <p className={`text-sm mb-4 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Practice with realistic AI interviews. Get instant feedback on your responses.</p>
@@ -292,7 +299,7 @@ export function Landing({ onStart }) {
 
                         {/* Feature 2 - Track Progress */}
                         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
-                            className={`rounded-2xl overflow-hidden border ${isDark ? 'bg-slate-800/40 border-slate-700/50' : 'bg-white border-slate-100'}`} style={{ boxShadow: '0 8px 40px -8px rgba(0, 0, 0, 0.08)' }}>
+                            className={`rounded-2xl overflow-hidden border transition-all duration-300 ${isDark ? 'bg-slate-800/50 border-[#2d6254]/20 hover:border-[#2d6254]/40 hover:bg-slate-800/70' : 'bg-white border-slate-100'}`} style={{ boxShadow: isDark ? '0 8px 40px -8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(45, 98, 84, 0.1)' : '0 8px 40px -8px rgba(0, 0, 0, 0.08)' }}>
                             <div className="p-6">
                                 <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>Track Progress</h3>
                                 <p className={`text-sm mb-4 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Monitor your improvement. Gain full visibility into every stage of preparation.</p>
@@ -319,7 +326,7 @@ export function Landing({ onStart }) {
 
                         {/* Feature 3 - Real-time Feedback */}
                         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
-                            className={`rounded-2xl overflow-hidden border ${isDark ? 'bg-slate-800/40 border-slate-700/50' : 'bg-white border-slate-100'}`} style={{ boxShadow: '0 8px 40px -8px rgba(0, 0, 0, 0.08)' }}>
+                            className={`rounded-2xl overflow-hidden border transition-all duration-300 ${isDark ? 'bg-slate-800/50 border-[#2d6254]/20 hover:border-[#2d6254]/40 hover:bg-slate-800/70' : 'bg-white border-slate-100'}`} style={{ boxShadow: isDark ? '0 8px 40px -8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(45, 98, 84, 0.1)' : '0 8px 40px -8px rgba(0, 0, 0, 0.08)' }}>
                             <div className="p-6">
                                 <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>Real-time Feedback</h3>
                                 <p className={`text-sm mb-4 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Get instant AI feedback on your responses. Improve with every practice session.</p>
@@ -344,7 +351,7 @@ export function Landing({ onStart }) {
             </section>
 
             {/* INTEGRATIONS SECTION */}
-            <section className={`py-24 px-6 ${isDark ? 'bg-slate-900/30' : 'bg-white'}`}>
+            <section className={`py-24 px-6 ${isDark ? 'bg-slate-900/40' : 'bg-white'}`}>
                 <div className="max-w-4xl mx-auto text-center">
                     {/* Integration Icons Arc */}
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="relative h-48 mb-8">
@@ -390,8 +397,8 @@ export function Landing({ onStart }) {
                 </div>
             </section>
 
-            {/* CONFIGURATION SECTION - UNCHANGED */}
-            <section ref={configRef} className="py-32 px-6 relative">
+            {/* CONFIGURATION SECTION */}
+            <section id="config-section" ref={configRef} className="py-32 px-6 relative">
                 <div className="max-w-6xl mx-auto">
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                         className={`rounded-[2.5rem] p-8 md:p-12 border relative overflow-hidden ${isDark ? 'bg-slate-900/80 border-slate-700/50 backdrop-blur-xl' : 'bg-white border-slate-200'}`}
