@@ -60,13 +60,7 @@ export function History({ onBack, onStartNew }) {
                             <ChevronRight size={24} className="rotate-180" />
                         </button>
                         <div>
-                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-2 ${isDark
-                                ? 'bg-[#2d6254]/20 text-[#8bc1af] border border-[#2d6254]/30'
-                                : 'bg-[#c5ddd4]/50 text-[#1a3c34] border border-[#8bc1af]/30'
-                                }`}>
-                                <Sparkles size={12} />
-                                // Your Progress //
-                            </div>
+                           
                             <h1 className={`text-3xl md:text-4xl font-bold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                                 Track Your Journey
                             </h1>

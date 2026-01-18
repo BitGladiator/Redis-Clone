@@ -28,14 +28,14 @@ const DEFAULT_GAMIFICATION = {
 
 // Badge definitions
 export const BADGES = [
-    { id: 'first_interview', name: 'First Steps', description: 'Complete your first interview', icon: '🎯', requirement: 1 },
-    { id: 'five_sessions', name: 'Getting Serious', description: 'Complete 5 practice sessions', icon: '⭐', requirement: 5 },
-    { id: 'ten_sessions', name: 'Dedicated', description: 'Complete 10 practice sessions', icon: '🏆', requirement: 10 },
-    { id: 'streak_3', name: 'On Fire', description: '3-day practice streak', icon: '🔥', requirement: 3 },
-    { id: 'streak_7', name: 'Week Warrior', description: '7-day practice streak', icon: '💪', requirement: 7 },
-    { id: 'high_score', name: 'Top Performer', description: 'Score 90+ on an interview', icon: '🌟', requirement: 90 },
-    { id: 'all_roles', name: 'Versatile', description: 'Practice all role types', icon: '🎭', requirement: 4 },
-    { id: 'speed_demon', name: 'Speed Demon', description: 'Complete interview under 3 minutes', icon: '⚡', requirement: 180 },
+    { id: 'first_interview', name: 'First Steps', description: 'Complete your first interview', requirement: 1 },
+    { id: 'five_sessions', name: 'Getting Serious', description: 'Complete 5 practice sessions', requirement: 5 },
+    { id: 'ten_sessions', name: 'Dedicated', description: 'Complete 10 practice sessions', requirement: 10 },
+    { id: 'streak_3', name: 'On Fire', description: '3-day practice streak', requirement: 3 },
+    { id: 'streak_7', name: 'Week Warrior', description: '7-day practice streak', requirement: 7 },
+    { id: 'high_score', name: 'Top Performer', description: 'Score 90+ on an interview', requirement: 90 },
+    { id: 'all_roles', name: 'Versatile', description: 'Practice all role types', requirement: 4 },
+    { id: 'speed_demon', name: 'Speed Demon', description: 'Complete interview under 3 minutes', requirement: 180 },
 ];
 
 // History Management

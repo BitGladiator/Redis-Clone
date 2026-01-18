@@ -152,13 +152,7 @@ export function Settings({ onBack }) {
                                 <ChevronLeft size={24} className={isDark ? 'text-slate-400' : 'text-slate-500'} />
                             </button>
                             <div>
-                                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-2 ${isDark
-                                    ? 'bg-[#2d6254]/20 text-[#8bc1af] border border-[#2d6254]/30'
-                                    : 'bg-[#c5ddd4]/50 text-[#1a3c34] border border-[#8bc1af]/30'
-                                    }`}>
-                                    <SettingsIcon size={12} />
-                                    // Settings //
-                                </div>
+                             
                                 <h1 className={`text-3xl md:text-4xl font-bold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                                     Preferences
                                 </h1>

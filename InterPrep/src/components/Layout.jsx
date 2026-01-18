@@ -1,17 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     Github, Sun, Moon, Menu, X, Settings, ChevronDown,
-    Code, BarChart3, Users, Crown, Zap
+    Code, BarChart3, Users, Crown, Zap, LogOut, LogIn, UserPlus
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../hooks/useAuth';
 import { Logo } from './Logo';
+import { LoginModal } from './auth/LoginModal';
+import { SignupModal } from './auth/SignupModal';
 
 export function Layout({ children, currentPage, onNavigate }) {
     const { theme, toggleTheme } = useTheme();
+    const { user, isAuthenticated, logout } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showSignupModal, setShowSignupModal] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const userMenuRef = useRef(null);
 
     // Track scroll for navbar effect
     useEffect(() => {
@@ -43,10 +51,19 @@ export function Layout({ children, currentPage, onNavigate }) {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
                 setDropdownOpen(false);
             }
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+                setUserMenuOpen(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    const handleLogout = async () => {
+        await logout();
+        setUserMenuOpen(false);
+        onNavigate('landing');
+    };
 
     // Primary nav items (always visible)
     const primaryNav = [
@@ -287,6 +304,90 @@ export function Layout({ children, currentPage, onNavigate }) {
 
                         {/* Right Actions */}
                         <div className="flex items-center gap-2 flex-shrink-0">
+                            {/* Auth Buttons - Show only when NOT authenticated */}
+                            {!isAuthenticated && (
+                                <>
+                                    <button
+                                        onClick={() => setShowLoginModal(true)}
+                                        className={`hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${isDark
+                                                ? 'text-slate-300 hover:text-white hover:bg-white/10'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                            }`}
+                                    >
+                                        <LogIn size={16} />
+                                        Login
+                                    </button>
+                                    <button
+                                        onClick={() => setShowSignupModal(true)}
+                                        className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold bg-[#2d6254] text-white hover:bg-[#3d8570] transition-all"
+                                    >
+                                        <UserPlus size={16} />
+                                        Sign Up
+                                    </button>
+                                </>
+                            )}
+
+                            {/* User Menu - Show only when authenticated */}
+                            {isAuthenticated && user && (
+                                <div ref={userMenuRef} className="relative hidden md:block">
+                                    <button
+                                        onClick={() => setUserMenuOpen(!userMenuOpen)}
+                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${isDark
+                                                ? 'hover:bg-white/10 text-slate-300'
+                                                : 'hover:bg-slate-100 text-slate-700'
+                                            }`}
+                                    >
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${isDark
+                                                ? 'bg-gradient-to-br from-[#2d6254] to-[#1a3c34] text-white'
+                                                : 'bg-[#c5ddd4] text-[#1a3c34]'
+                                            }`}>
+                                            {user.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <span className="text-sm font-medium max-w-[100px] truncate">{user.name}</span>
+                                        <ChevronDown size={14} className={`transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {/* Dropdown Menu */}
+                                    {userMenuOpen && (
+                                        <div className={`absolute right-0 mt-2 w-56 rounded-xl shadow-xl border z-50 ${isDark
+                                                ? 'bg-slate-900 border-slate-700'
+                                                : 'bg-white border-slate-200'
+                                            }`}>
+                                            <div className={`px-4 py-3 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'
+                                                }`}>
+                                                <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                                    {user.name}
+                                                </p>
+                                                <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                    {user.email}
+                                                </p>
+                                            </div>
+                                            <div className="py-2">
+                                                <button
+                                                    onClick={() => {
+                                                        setUserMenuOpen(false);
+                                                        onNavigate('settings');
+                                                    }}
+                                                    className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 transition-colors ${isDark
+                                                            ? 'hover:bg-slate-800 text-slate-300'
+                                                            : 'hover:bg-slate-50 text-slate-700'
+                                                        }`}
+                                                >
+                                                    <Settings size={16} />
+                                                    Settings
+                                                </button>
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="w-full px-4 py-2 text-left text-sm flex items-center gap-2 transition-colors text-red-500 hover:bg-red-500/10"
+                                                >
+                                                    <LogOut size={16} />
+                                                    Logout
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                             <button
                                 onClick={toggleTheme}
                                 className={`p-2 rounded-full transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}
@@ -340,6 +441,18 @@ export function Layout({ children, currentPage, onNavigate }) {
                     {children}
                 </div>
             </main>
+
+            {/* Auth Modals */}
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                onSwitchToSignup={() => setShowSignupModal(true)}
+            />
+            <SignupModal
+                isOpen={showSignupModal}
+                onClose={() => setShowSignupModal(false)}
+                onSwitchToLogin={() => setShowLoginModal(true)}
+            />
 
             {/* Footer */}
             <footer className={`relative z-10 py-8 mt-12 border-t ${isDark ? 'border-white/5 text-slate-500' : 'border-slate-200 text-slate-400'

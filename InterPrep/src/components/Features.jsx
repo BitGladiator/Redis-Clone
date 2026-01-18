@@ -94,18 +94,7 @@ export function Features({ onBack }) {
             >
                 {/* Header */}
                 <div className="text-center mb-16 max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 }}
-                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${isDark
-                            ? 'bg-[#2d6254]/20 text-[#8bc1af] border border-[#2d6254]/30'
-                            : 'bg-[#c5ddd4]/50 text-[#1a3c34] border border-[#8bc1af]/30'
-                            }`}
-                    >
-                        <Sparkles size={14} />
-                        <span>// Our Features //</span>
-                    </motion.div>
+                   
 
                     <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                         Everything You Need to
