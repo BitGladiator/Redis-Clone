@@ -267,19 +267,20 @@ export function Layout({ children, currentPage, onNavigate }) {
 
             {/* NAVBAR - Width expands on scroll */}
             <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3 transition-all duration-300">
-                <div className={`mx-auto transition-all duration-500 ease-out ${scrolled ? 'max-w-4xl' : 'max-w-2xl'}`}>
+                <div className={`mx-auto transition-all duration-700 ease-in-out ${scrolled ? 'max-w-6xl' : 'max-w-[800px]'}`}>
                     <div
-                        className={`flex items-center justify-between px-4 h-14 rounded-full transition-all duration-300 ${isDark
-                            ? scrolled
-                                ? 'bg-slate-900/95 backdrop-blur-xl border border-[#2d6254]/25 shadow-lg shadow-black/30'
-                                : 'bg-slate-900/80 backdrop-blur-xl border border-white/10'
-                            : scrolled
-                                ? 'bg-white/95 backdrop-blur-xl border border-slate-200 shadow-xl shadow-slate-300/30'
-                                : 'bg-white/90 backdrop-blur-xl border border-slate-200/50 shadow-lg shadow-slate-200/20'
+                        className={`flex items-center justify-between transition-all duration-700 ease-in-out rounded-full ${scrolled ? 'px-6 h-14' : 'px-4 h-14'
+                            } ${isDark
+                                ? scrolled
+                                    ? 'bg-slate-900/95 backdrop-blur-xl border border-[#2d6254]/25 shadow-lg shadow-black/30'
+                                    : 'bg-slate-900/80 backdrop-blur-xl border border-white/10'
+                                : scrolled
+                                    ? 'bg-white/95 backdrop-blur-xl border border-slate-200 shadow-xl shadow-slate-300/30'
+                                    : 'bg-white/90 backdrop-blur-xl border border-slate-200/50 shadow-lg shadow-slate-200/20'
                             }`}
                     >
                         {/* Logo */}
-                        <button onClick={() => onNavigate('landing')} className="flex items-center gap-2 group flex-shrink-0">
+                        <button onClick={() => onNavigate('landing')} className="flex items-center gap-2 mr-3 group flex-shrink-0">
                             <Logo className="w-7 h-7" isDark={isDark} />
                             <span className={`font-bold font-display text-base ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                 InterPrep
@@ -287,14 +288,14 @@ export function Layout({ children, currentPage, onNavigate }) {
                         </button>
 
                         {/* Desktop Navigation */}
-                        <nav className="hidden md:flex items-center gap-1">
+                        <nav className={`hidden md:flex items-center flex-1 justify-center transition-all duration-700 ${scrolled ? 'gap-2' : 'gap-1'}`}>
                             {primaryNav.map((item) => (
                                 <button
                                     key={item.id}
                                     onClick={() => onNavigate(item.id)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${currentPage === item.id
-                                        ? isDark ? 'text-white' : 'text-slate-900'
-                                        : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${currentPage === item.id
+                                        ? isDark ? 'text-white bg-white/5' : 'text-slate-900 bg-slate-100/80'
+                                        : isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                         }`}
                                 >
                                     {item.label}
@@ -303,55 +304,55 @@ export function Layout({ children, currentPage, onNavigate }) {
                         </nav>
 
                         {/* Right Actions */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                            {/* Auth Buttons - Show only when NOT authenticated */}
+                        <div className={`flex items-center flex-shrink-0 transition-all duration-700 ${scrolled ? 'gap-2' : 'gap-1 sm:gap-2'}`}>
+                            {/* Auth Buttons - Show only when NOT authenticated and on larger screens */}
                             {!isAuthenticated && (
                                 <>
                                     <button
                                         onClick={() => setShowLoginModal(true)}
-                                        className={`hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${isDark
-                                                ? 'text-slate-300 hover:text-white hover:bg-white/10'
-                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                        className={`hidden lg:flex items-center gap-2 px-3 xl:px-4 py-1.5 rounded-full text-sm font-medium transition-all ${isDark
+                                            ? 'text-slate-300 hover:text-white hover:bg-white/10'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                                             }`}
                                     >
                                         <LogIn size={16} />
-                                        Login
+                                        <span className="hidden xl:inline">Login</span>
                                     </button>
                                     <button
                                         onClick={() => setShowSignupModal(true)}
-                                        className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold bg-[#2d6254] text-white hover:bg-[#3d8570] transition-all"
+                                        className="hidden lg:flex items-center gap-2 px-3 xl:px-4 py-1.5 rounded-full text-sm font-semibold bg-[#2d6254] text-white hover:bg-[#3d8570] transition-all"
                                     >
                                         <UserPlus size={16} />
-                                        Sign Up
+                                        <span className="hidden xl:inline">Sign Up</span>
                                     </button>
                                 </>
                             )}
 
-                            {/* User Menu - Show only when authenticated */}
+                            {/* User Menu - Show only when authenticated and on larger screens */}
                             {isAuthenticated && user && (
-                                <div ref={userMenuRef} className="relative hidden md:block">
+                                <div ref={userMenuRef} className="relative hidden lg:block">
                                     <button
                                         onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${isDark
-                                                ? 'hover:bg-white/10 text-slate-300'
-                                                : 'hover:bg-slate-100 text-slate-700'
+                                        className={`flex items-center gap-1 xl:gap-2 px-2 xl:px-3 py-1.5 rounded-full transition-all ${isDark
+                                            ? 'hover:bg-white/10 text-slate-300'
+                                            : 'hover:bg-slate-100 text-slate-700'
                                             }`}
                                     >
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${isDark
-                                                ? 'bg-gradient-to-br from-[#2d6254] to-[#1a3c34] text-white'
-                                                : 'bg-[#c5ddd4] text-[#1a3c34]'
+                                        <div className={`w-7 h-7 xl:w-8 xl:h-8 rounded-full flex items-center justify-center text-xs xl:text-sm font-bold ${isDark
+                                            ? 'bg-gradient-to-br from-[#2d6254] to-[#1a3c34] text-white'
+                                            : 'bg-[#c5ddd4] text-[#1a3c34]'
                                             }`}>
                                             {user.name.charAt(0).toUpperCase()}
                                         </div>
-                                        <span className="text-sm font-medium max-w-[100px] truncate">{user.name}</span>
-                                        <ChevronDown size={14} className={`transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                                        <span className="hidden xl:inline text-sm font-medium max-w-[100px] truncate">{user.name}</span>
+                                        <ChevronDown size={14} className={`hidden xl:inline transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                                     </button>
 
                                     {/* Dropdown Menu */}
                                     {userMenuOpen && (
                                         <div className={`absolute right-0 mt-2 w-56 rounded-xl shadow-xl border z-50 ${isDark
-                                                ? 'bg-slate-900 border-slate-700'
-                                                : 'bg-white border-slate-200'
+                                            ? 'bg-slate-900 border-slate-700'
+                                            : 'bg-white border-slate-200'
                                             }`}>
                                             <div className={`px-4 py-3 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'
                                                 }`}>
@@ -369,8 +370,8 @@ export function Layout({ children, currentPage, onNavigate }) {
                                                         onNavigate('settings');
                                                     }}
                                                     className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 transition-colors ${isDark
-                                                            ? 'hover:bg-slate-800 text-slate-300'
-                                                            : 'hover:bg-slate-50 text-slate-700'
+                                                        ? 'hover:bg-slate-800 text-slate-300'
+                                                        : 'hover:bg-slate-50 text-slate-700'
                                                         }`}
                                                 >
                                                     <Settings size={16} />
@@ -388,16 +389,18 @@ export function Layout({ children, currentPage, onNavigate }) {
                                     )}
                                 </div>
                             )}
+                            {/* Theme Toggle - Hidden on small screens */}
                             <button
                                 onClick={toggleTheme}
-                                className={`p-2 rounded-full transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}
+                                className={`hidden sm:flex p-2 rounded-full transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}
                             >
                                 {isDark ? <Sun size={18} /> : <Moon size={18} />}
                             </button>
 
+                            {/* Settings Button - Hidden on mobile, available in sidebar */}
                             <button
                                 onClick={() => onNavigate('settings')}
-                                className={`p-2 rounded-full transition-all ${currentPage === 'settings'
+                                className={`hidden md:flex p-2 rounded-full transition-all ${currentPage === 'settings'
                                     ? isDark ? 'text-[#8bc1af] bg-[#2d6254]/20' : 'text-[#1a3c34] bg-[#c5ddd4]/50'
                                     : isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                     }`}
@@ -405,7 +408,7 @@ export function Layout({ children, currentPage, onNavigate }) {
                                 <Settings size={18} />
                             </button>
 
-                            {/* Start Interview Button - Appears on scroll */}
+                            {/* Start Interview Button - Hidden on mobile, appears on scroll on larger screens */}
                             <button
                                 onClick={() => {
                                     onNavigate('landing');
@@ -414,13 +417,15 @@ export function Layout({ children, currentPage, onNavigate }) {
                                         document.getElementById('config-section')?.scrollIntoView({ behavior: 'smooth' });
                                     }, 100);
                                 }}
-                                className={`flex items-center px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-300 ${scrolled ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'
+                                className={`hidden md:flex items-center gap-1 px-3 xl:px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-300 ${scrolled ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'
                                     } ${isDark
                                         ? 'bg-[#2d6254] text-white hover:bg-[#3d8570]'
                                         : 'bg-[#1a3c34] text-white hover:bg-[#234e44]'
                                     }`}
                             >
-                                Start Interview
+                                <Zap size={16} className="xl:hidden" />
+                                <span className="hidden xl:inline">Start Interview</span>
+                                <span className="xl:hidden">Start</span>
                             </button>
 
                             {/* Mobile menu button */}
