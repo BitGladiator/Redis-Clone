@@ -308,22 +308,13 @@ export function Layout({ children, currentPage, onNavigate }) {
                             {/* Auth Buttons - Show only when NOT authenticated and on larger screens */}
                             {!isAuthenticated && (
                                 <>
+                                    
                                     <button
                                         onClick={() => setShowLoginModal(true)}
-                                        className={`hidden lg:flex items-center gap-2 px-3 xl:px-4 py-1.5 rounded-full text-sm font-medium transition-all ${isDark
-                                            ? 'text-slate-300 hover:text-white hover:bg-white/10'
-                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                                            }`}
-                                    >
-                                        <LogIn size={16} />
-                                        <span className="hidden xl:inline">Login</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setShowSignupModal(true)}
                                         className="hidden lg:flex items-center gap-2 px-3 xl:px-4 py-1.5 rounded-full text-sm font-semibold bg-[#2d6254] text-white hover:bg-[#3d8570] transition-all"
                                     >
-                                        <UserPlus size={16} />
-                                        <span className="hidden xl:inline">Sign Up</span>
+                                                                               <LogIn size={16} />
+                                        <span className="hidden xl:inline">Login</span>
                                     </button>
                                 </>
                             )}
