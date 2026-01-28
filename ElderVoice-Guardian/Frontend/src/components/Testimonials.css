@@ -1,0 +1,105 @@
+.testimonials {
+    padding: var(--spacing-xl) 0;
+    background: var(--color-cream);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.section-header h2 {
+    flex: 1;
+    color: var(--color-primary);
+}
+
+.btn-see-all {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent-yellow);
+    color: var(--color-dark);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.938rem;
+    transition: all var(--transition-normal);
+}
+
+.btn-see-all:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.testimonial-card {
+    background: white;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonial-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: var(--color-primary);
+    transition: height var(--transition-normal);
+}
+
+.testimonial-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.testimonial-card:hover::before {
+    height: 100%;
+}
+
+.testimonial-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.testimonial-card p {
+    font-size: 1.063rem;
+    line-height: 1.8;
+    margin-bottom: var(--spacing-md);
+    font-style: italic;
+    color: var(--color-dark);
+}
+
+.testimonial-author {
+    font-size: 0.938rem;
+    font-weight: 600;
+    color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .btn-see-all {
+        width: 100%;
+        text-align: center;
+    }
+}
