@@ -65,21 +65,23 @@ export function Layout({ children, currentPage, onNavigate }) {
         onNavigate('landing');
     };
 
-    // Primary nav items (always visible)
+    // Primary nav items (conditionally shown based on auth status)
     const primaryNav = [
         { id: 'landing', label: 'Home' },
         { id: 'features', label: 'Features' },
-        { id: 'history', label: 'Progress' },
-        { id: 'analytics', label: 'Analytics' },
+        ...(isAuthenticated ? [
+            { id: 'history', label: 'Progress' },
+            { id: 'analytics', label: 'Analytics' },
+        ] : [])
     ];
 
-    // Dropdown items (under "More")
-    const moreItems = [
+    // Dropdown items (under "More") - only visible to authenticated users
+    const moreItems = isAuthenticated ? [
         { id: 'simulations', label: 'Interview Simulations', icon: Zap, desc: 'Speed rounds & whiteboard' },
         { id: 'code-editor', label: 'Code Lab', icon: Code, desc: 'Practice coding challenges' },
         { id: 'social', label: 'Community', icon: Users, desc: 'Questions & leaderboard' },
         { id: 'premium', label: 'Premium', icon: Crown, desc: 'FAANG prep & recordings' },
-    ];
+    ] : [];
 
     const isDark = theme === 'dark';
     const isMoreActive = moreItems.some(item => item.id === currentPage);

@@ -1,13 +1,14 @@
 import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Mic, Brain, Target, ChevronRight,
     Users, Play, ArrowRight, BarChart3,
     CheckCircle2, Terminal, Cpu, Globe, Heart, Zap, Flame,
     Linkedin, Instagram, Mail, MoreHorizontal, MessageSquare,
-    Video, Calendar, FileText, Send, Check
+    Video, Calendar, FileText, Send, Check, AlertCircle
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../hooks/useAuth';
 
 // --- Floating Profile Card Component ---
 const ProfileCard = ({ name, role, date, position, delay, isDark, avatarColor, showDate = true }) => (
@@ -110,13 +111,19 @@ const integrations = [
 
 export function Landing({ onStart }) {
     const { theme } = useTheme();
+    const { isAuthenticated } = useAuth();
     const [selectedRole, setSelectedRole] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('');
     const [selectedDifficulty, setSelectedDifficulty] = useState('');
+    const [showAuthPrompt, setShowAuthPrompt] = useState(false);
     const configRef = useRef(null);
     const isDark = theme === 'dark';
 
     const handleStart = () => {
+        if (!isAuthenticated) {
+            setShowAuthPrompt(true);
+            return;
+        }
         if (selectedRole && selectedLevel && selectedDifficulty) {
             onStart({ role: selectedRole, level: selectedLevel, difficulty: selectedDifficulty, timer: 'untimed' });
         }
@@ -475,6 +482,64 @@ export function Landing({ onStart }) {
                     </motion.div>
                 </div>
             </section>
+
+            {/* Auth Prompt Modal */}
+            <AnimatePresence>
+                {showAuthPrompt && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => setShowAuthPrompt(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className={`w-full max-w-md p-8 rounded-3xl border text-center ${isDark
+                                    ? 'bg-slate-900 border-slate-700'
+                                    : 'bg-white border-slate-200'
+                                }`}
+                        >
+                            <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${isDark ? 'bg-[#2d6254]/20' : 'bg-[#c5ddd4]/50'
+                                }`}>
+                                <AlertCircle size={32} className={isDark ? 'text-[#8bc1af]' : 'text-[#2d6254]'} />
+                            </div>
+
+                            <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
+                                Sign In Required
+                            </h3>
+
+                            <p className={`mb-6 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                You need to be logged in to start an interview session. Please sign in or create an account to continue.
+                            </p>
+
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => setShowAuthPrompt(false)}
+                                    className={`w-full px-6 py-3 rounded-xl font-semibold transition-all ${isDark
+                                            ? 'bg-[#2d6254] hover:bg-[#3d8570] text-white'
+                                            : 'bg-[#1a3c34] hover:bg-[#234e44] text-white'
+                                        }`}
+                                >
+                                    Got it
+                                </button>
+                                <button
+                                    onClick={() => setShowAuthPrompt(false)}
+                                    className={`w-full px-6 py-3 rounded-xl font-semibold transition-all ${isDark
+                                            ? 'bg-slate-800 hover:bg-slate-700 text-white'
+                                            : 'bg-slate-100 hover:bg-slate-200 text-slate-900'
+                                        }`}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
