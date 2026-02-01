@@ -211,59 +211,98 @@ export function Layout({ children, currentPage, onNavigate }) {
                         </button>
                     ))}
 
-                    {/* Divider */}
-                    <div className={`my-4 mx-3 border-t ${isDark ? 'border-[#2d6254]/15' : 'border-slate-100'}`} />
+                    {/* Tools Section - Only show for authenticated users */}
+                    {isAuthenticated && moreItems.length > 0 && (
+                        <>
+                            {/* Divider */}
+                            <div className={`my-4 mx-3 border-t ${isDark ? 'border-[#2d6254]/15' : 'border-slate-100'}`} />
 
-                    {/* Tools Section */}
-                    <p className={`px-3 py-2 text-[10px] font-semibold uppercase tracking-widest ${isDark ? 'text-[#8bc1af]/50' : 'text-slate-400'}`}>
-                        Tools & Features
-                    </p>
+                            {/* Tools Section */}
+                            <p className={`px-3 py-2 text-[10px] font-semibold uppercase tracking-widest ${isDark ? 'text-[#8bc1af]/50' : 'text-slate-400'}`}>
+                                Tools & Features
+                            </p>
 
-                    {moreItems.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => onNavigate(item.id)}
-                            className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 ${currentPage === item.id
-                                ? isDark
-                                    ? 'bg-gradient-to-r from-[#2d6254]/30 to-[#2d6254]/10 text-[#8bc1af] border border-[#2d6254]/30 shadow-lg shadow-[#2d6254]/10'
-                                    : 'bg-[#c5ddd4]/50 text-[#1a3c34]'
-                                : isDark
-                                    ? 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                                }`}
-                        >
-                            <div className={`p-2 rounded-lg ${currentPage === item.id
-                                ? isDark ? 'bg-[#2d6254]/30' : 'bg-[#2d6254]/20'
-                                : isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
-                                <item.icon size={16} className={currentPage === item.id ? (isDark ? 'text-[#8bc1af]' : 'text-[#2d6254]') : ''} />
-                            </div>
-                            <div className="flex-1">
-                                <span className="block">{item.label}</span>
-                                <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{item.desc}</span>
-                            </div>
-                        </button>
-                    ))}
+                            {moreItems.map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => onNavigate(item.id)}
+                                    className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-3 ${currentPage === item.id
+                                        ? isDark
+                                            ? 'bg-gradient-to-r from-[#2d6254]/30 to-[#2d6254]/10 text-[#8bc1af] border border-[#2d6254]/30 shadow-lg shadow-[#2d6254]/10'
+                                            : 'bg-[#c5ddd4]/50 text-[#1a3c34]'
+                                        : isDark
+                                            ? 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                        }`}
+                                >
+                                    <div className={`p-2 rounded-lg ${currentPage === item.id
+                                        ? isDark ? 'bg-[#2d6254]/30' : 'bg-[#2d6254]/20'
+                                        : isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                                        <item.icon size={16} className={currentPage === item.id ? (isDark ? 'text-[#8bc1af]' : 'text-[#2d6254]') : ''} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <span className="block">{item.label}</span>
+                                        <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{item.desc}</span>
+                                    </div>
+                                </button>
+                            ))}
+                        </>
+                    )}
                 </nav>
 
-                {/* Footer - User Profile Area */}
+                {/* Footer - User Profile Area or Auth Buttons */}
                 <div className={`absolute bottom-0 left-0 right-0 p-4 border-t ${isDark ? 'border-[#2d6254]/15 bg-gradient-to-t from-[#0a0f14] to-transparent' : 'border-slate-100 bg-white'}`}>
-                    <div className={`p-3 rounded-xl ${isDark ? 'bg-white/5 border border-white/5' : 'bg-slate-50'}`}>
-                        <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-[#2d6254] to-[#1a3c34]' : 'bg-[#c5ddd4]'}`}>
-                                <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-[#1a3c34]'}`}>G</span>
+                    {isAuthenticated && user ? (
+                        <div className={`p-3 rounded-xl ${isDark ? 'bg-white/5 border border-white/5' : 'bg-slate-50'}`}>
+                            <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-gradient-to-br from-[#2d6254] to-[#1a3c34]' : 'bg-[#c5ddd4]'}`}>
+                                    <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-[#1a3c34]'}`}>
+                                        {user.name.charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>{user.name}</p>
+                                    <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{user.email}</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setSidebarOpen(false);
+                                        onNavigate('settings');
+                                    }}
+                                    className={`p-2 rounded-lg transition-all ${isDark ? 'hover:bg-white/10 text-slate-400' : 'hover:bg-slate-200 text-slate-500'}`}
+                                >
+                                    <Settings size={16} />
+                                </button>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>Guest User</p>
-                                <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Free Plan</p>
-                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
                             <button
-                                onClick={() => onNavigate('settings')}
-                                className={`p-2 rounded-lg transition-all ${isDark ? 'hover:bg-white/10 text-slate-400' : 'hover:bg-slate-200 text-slate-500'}`}
+                                onClick={() => {
+                                    setSidebarOpen(false);
+                                    setShowLoginModal(true);
+                                }}
+                                className={`w-full px-4 py-2.5 rounded-xl font-semibold transition-all ${isDark
+                                        ? 'bg-[#2d6254] hover:bg-[#3d8570] text-white'
+                                        : 'bg-[#1a3c34] hover:bg-[#234e44] text-white'
+                                    }`}
                             >
-                                <Settings size={16} />
+                                Login
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setSidebarOpen(false);
+                                    setShowSignupModal(true);
+                                }}
+                                className={`w-full px-4 py-2.5 rounded-xl font-semibold transition-all border ${isDark
+                                        ? 'border-[#2d6254]/50 bg-[#2d6254]/10 hover:bg-[#2d6254]/20 text-[#8bc1af]'
+                                        : 'border-[#1a3c34] bg-transparent hover:bg-slate-50 text-[#1a3c34]'
+                                    }`}
+                            >
+                                Sign Up
                             </button>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 
