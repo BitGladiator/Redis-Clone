@@ -61,13 +61,7 @@ export function About() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 ${isDark ? 'bg-[#2d6254]/20 border border-[#2d6254]/30' : 'bg-[#c5ddd4]/30 border border-[#2d6254]/20'
-                            }`}>
-                            <Sparkles size={16} className="text-[#2d6254]" />
-                            <span className={`text-sm font-medium ${isDark ? 'text-[#8bc1af]' : 'text-[#1a3c34]'}`}>
-                                About InterPrep
-                            </span>
-                        </div>
+                        
 
                         <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                             Empowering Your <span className="text-[#2d6254]">Interview Success</span>
