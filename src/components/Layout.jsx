@@ -69,6 +69,8 @@ export function Layout({ children, currentPage, onNavigate }) {
     const primaryNav = [
         { id: 'landing', label: 'Home' },
         { id: 'features', label: 'Features' },
+        { id: 'about', label: 'About' },
+        { id: 'pricing', label: 'Pricing' },
         ...(isAuthenticated ? [
             { id: 'history', label: 'Progress' },
             { id: 'analytics', label: 'Analytics' },
@@ -283,8 +285,8 @@ export function Layout({ children, currentPage, onNavigate }) {
                                     setShowLoginModal(true);
                                 }}
                                 className={`w-full px-4 py-2.5 rounded-xl font-semibold transition-all ${isDark
-                                        ? 'bg-[#2d6254] hover:bg-[#3d8570] text-white'
-                                        : 'bg-[#1a3c34] hover:bg-[#234e44] text-white'
+                                    ? 'bg-[#2d6254] hover:bg-[#3d8570] text-white'
+                                    : 'bg-[#1a3c34] hover:bg-[#234e44] text-white'
                                     }`}
                             >
                                 Login
@@ -295,8 +297,8 @@ export function Layout({ children, currentPage, onNavigate }) {
                                     setShowSignupModal(true);
                                 }}
                                 className={`w-full px-4 py-2.5 rounded-xl font-semibold transition-all border ${isDark
-                                        ? 'border-[#2d6254]/50 bg-[#2d6254]/10 hover:bg-[#2d6254]/20 text-[#8bc1af]'
-                                        : 'border-[#1a3c34] bg-transparent hover:bg-slate-50 text-[#1a3c34]'
+                                    ? 'border-[#2d6254]/50 bg-[#2d6254]/10 hover:bg-[#2d6254]/20 text-[#8bc1af]'
+                                    : 'border-[#1a3c34] bg-transparent hover:bg-slate-50 text-[#1a3c34]'
                                     }`}
                             >
                                 Sign Up

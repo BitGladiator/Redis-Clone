@@ -17,6 +17,7 @@ import { PremiumContent } from './components/PremiumContent';
 import { Social } from './components/Social';
 import { SimulationModes } from './components/SimulationModes';
 import { Profile } from './components/Profile';
+import { Pricing } from './components/Pricing';
 import { isOnboardingComplete, saveSession } from './lib/storage';
 
 function App() {
@@ -119,6 +120,7 @@ function App() {
                     {view === 'landing' && <Landing onStart={handleStart} />}
                     {view === 'features' && <Features />}
                     {view === 'about' && <About />}
+                    {view === 'pricing' && <Pricing />}
                     {view === 'settings' && <Settings onBack={() => setView('landing')} />}
                     {view === 'profile' && <Profile onBack={() => setView('landing')} />}
                     {view === 'history' && (
