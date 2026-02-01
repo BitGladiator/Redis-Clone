@@ -68,9 +68,13 @@ export function Layout({ children, currentPage, onNavigate }) {
     // Primary nav items (conditionally shown based on auth status)
     const primaryNav = [
         { id: 'landing', label: 'Home' },
-        { id: 'features', label: 'Features' },
-        { id: 'about', label: 'About' },
-        { id: 'pricing', label: 'Pricing' },
+        // Show Features, About, Pricing only to non-authenticated users
+        ...(!isAuthenticated ? [
+            { id: 'features', label: 'Features' },
+            { id: 'about', label: 'About' },
+            { id: 'pricing', label: 'Pricing' },
+        ] : []),
+        // Show Progress and Analytics only to authenticated users
         ...(isAuthenticated ? [
             { id: 'history', label: 'Progress' },
             { id: 'analytics', label: 'Analytics' },
