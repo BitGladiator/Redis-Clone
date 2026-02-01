@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     Github, Sun, Moon, Menu, X, Settings, ChevronDown,
-    Code, BarChart3, Users, Crown, Zap, LogOut, LogIn, UserPlus
+    Code, BarChart3, Users, Crown, Zap, LogOut, LogIn, UserPlus, User
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
@@ -308,12 +308,12 @@ export function Layout({ children, currentPage, onNavigate }) {
                             {/* Auth Buttons - Show only when NOT authenticated and on larger screens */}
                             {!isAuthenticated && (
                                 <>
-                                    
+
                                     <button
                                         onClick={() => setShowLoginModal(true)}
                                         className="hidden lg:flex items-center gap-2 px-3 xl:px-4 py-1.5 rounded-full text-sm font-semibold bg-[#2d6254] text-white hover:bg-[#3d8570] transition-all"
                                     >
-                                                                               <LogIn size={16} />
+                                        <LogIn size={16} />
                                         <span className="hidden xl:inline">Login</span>
                                     </button>
                                 </>
@@ -355,6 +355,19 @@ export function Layout({ children, currentPage, onNavigate }) {
                                                 </p>
                                             </div>
                                             <div className="py-2">
+                                                <button
+                                                    onClick={() => {
+                                                        setUserMenuOpen(false);
+                                                        onNavigate('profile');
+                                                    }}
+                                                    className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 transition-colors ${isDark
+                                                        ? 'hover:bg-slate-800 text-slate-300'
+                                                        : 'hover:bg-slate-50 text-slate-700'
+                                                        }`}
+                                                >
+                                                    <User size={16} />
+                                                    Profile
+                                                </button>
                                                 <button
                                                     onClick={() => {
                                                         setUserMenuOpen(false);

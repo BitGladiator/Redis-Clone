@@ -16,6 +16,7 @@ import { Analytics } from './components/Analytics';
 import { PremiumContent } from './components/PremiumContent';
 import { Social } from './components/Social';
 import { SimulationModes } from './components/SimulationModes';
+import { Profile } from './components/Profile';
 import { isOnboardingComplete, saveSession } from './lib/storage';
 
 function App() {
@@ -119,6 +120,7 @@ function App() {
                     {view === 'features' && <Features />}
                     {view === 'about' && <About />}
                     {view === 'settings' && <Settings onBack={() => setView('landing')} />}
+                    {view === 'profile' && <Profile onBack={() => setView('landing')} />}
                     {view === 'history' && (
                         <History
                             onBack={() => setView('landing')}
